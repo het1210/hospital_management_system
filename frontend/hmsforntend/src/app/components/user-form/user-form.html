@@ -1,0 +1,165 @@
+<div class="user-form">
+  <div class="form-header">
+    <h2>{{ isEditMode ? 'Edit User' : 'Add New User' }}</h2>
+    <button class="close-btn" (click)="onClose()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+      </svg>
+    </button>
+  </div>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="username">Username *</label>
+        <input 
+          type="text" 
+          id="username" 
+          formControlName="username" 
+          placeholder="Enter username"
+          [class.error]="userForm.get('username')?.invalid && userForm.get('username')?.touched">
+        <span class="error-message" *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched">
+          Username is required (min 3 characters)
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email" 
+          placeholder="user@example.com"
+          [class.error]="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+        <span class="error-message" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+          Valid email is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password *</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password" 
+          placeholder="Enter password"
+          [class.error]="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+        <span class="error-message" *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+          Password is required (min 6 characters)
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="firstName">First Name *</label>
+        <input 
+          type="text" 
+          id="firstName" 
+          formControlName="firstName" 
+          placeholder="Enter first name"
+          [class.error]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched">
+        <span class="error-message" *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched">
+          First name is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">Last Name *</label>
+        <input 
+          type="text" 
+          id="lastName" 
+          formControlName="lastName" 
+          placeholder="Enter last name"
+          [class.error]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched">
+        <span class="error-message" *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched">
+          Last name is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number *</label>
+        <input 
+          type="tel" 
+          id="phone" 
+          formControlName="phone" 
+          placeholder="1234567890"
+          [class.error]="userForm.get('phone')?.invalid && userForm.get('phone')?.touched">
+        <span class="error-message" *ngIf="userForm.get('phone')?.invalid && userForm.get('phone')?.touched">
+          Valid 10-digit phone number required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="gender">Gender *</label>
+        <select 
+          id="gender" 
+          formControlName="gender"
+          [class.error]="userForm.get('gender')?.invalid && userForm.get('gender')?.touched">
+          <option value="" disabled selected>Select gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+        <span class="error-message" *ngIf="userForm.get('gender')?.invalid && userForm.get('gender')?.touched">
+          Gender is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfBirth">Date of Birth *</label>
+        <input 
+          type="date" 
+          id="dateOfBirth" 
+          formControlName="dateOfBirth"
+          [class.error]="userForm.get('dateOfBirth')?.invalid && userForm.get('dateOfBirth')?.touched">
+        <span class="error-message" *ngIf="userForm.get('dateOfBirth')?.invalid && userForm.get('dateOfBirth')?.touched">
+          Date of birth is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="hospitalId">Hospital *</label>
+        <select 
+          id="hospitalId" 
+          formControlName="hospitalId"
+          [class.error]="userForm.get('hospitalId')?.invalid && userForm.get('hospitalId')?.touched">
+          <option value="" disabled selected>Select hospital</option>
+          <option *ngFor="let hospital of hospitals" [value]="hospital.id">{{ hospital.name }}</option>
+        </select>
+        <span class="error-message" *ngIf="userForm.get('hospitalId')?.invalid && userForm.get('hospitalId')?.touched">
+          Hospital is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select 
+          id="status" 
+          formControlName="status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Roles *</label>
+        <div class="roles-checkboxes" formArrayName="roles">
+          <label *ngFor="let role of roles; let i = index" class="checkbox-label">
+            <input type="checkbox" [formControlName]="i">
+            <span>{{ role.name }}</span>
+          </label>
+        </div>
+        <span class="error-message" *ngIf="userForm.get('roles')?.invalid && userForm.get('roles')?.touched">
+          At least one role is required
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="onClose()">Cancel</button>
+      <button type="submit" class="submit-btn" [disabled]="userForm.invalid || isSubmitting">
+        <span *ngIf="!isSubmitting">{{ isEditMode ? 'Update User' : 'Save User' }}</span>
+        <span *ngIf="isSubmitting">{{ isEditMode ? 'Updating...' : 'Saving...' }}</span>
+      </button>
+    </div>
+  </form>
+</div>

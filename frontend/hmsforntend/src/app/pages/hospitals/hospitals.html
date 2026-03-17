@@ -1,0 +1,23 @@
+<div class="hospitals-page">
+  <div class="page-header">
+    <h1>Hospitals</h1>
+    <button class="add-btn" (click)="openAddHospital()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+      Add Hospital
+    </button>
+  </div>
+
+  <app-view-hospitals (edit)="onEditHospital($event)"></app-view-hospitals>
+
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-hospital-form 
+        [hospital]="editingHospital" 
+        (close)="closeModal()" 
+        (saved)="onHospitalSaved()">
+      </app-hospital-form>
+    </div>
+  </div>
+</div>

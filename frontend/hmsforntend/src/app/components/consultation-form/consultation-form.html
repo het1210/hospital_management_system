@@ -1,0 +1,189 @@
+<div class="consultation-form">
+  <div class="form-header">
+    <h2>Consultation Form</h2>
+    <button class="close-btn" (click)="onClose()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+      </svg>
+    </button>
+  </div>
+
+  <form [formGroup]="consultationForm" (ngSubmit)="onSubmit()">
+    <div class="form-section">
+      <h3>Patient Information</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Patient Name</label>
+          <input type="text" [value]="appointment?.patientName || 'N/A'" [disabled]="true" class="disabled-input">
+        </div>
+        <div class="form-group">
+          <label>Appointment ID</label>
+          <input type="text" [value]="appointment?.id || 'N/A'" [disabled]="true" class="disabled-input">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Consultation Details</h3>
+      <div class="form-group">
+        <label for="encounter">Encounter ID *</label>
+        <input
+          type="number" 
+          id="encounter" 
+          [disabled]="true" class="disabled-input"
+          formControlName="encounter"
+          [class.error]="consultationForm.get('encounter')?.invalid && consultationForm.get('encounter')?.touched">
+        <span class="error-message" *ngIf="consultationForm.get('encounter')?.invalid && consultationForm.get('encounter')?.touched">
+          Encounter ID is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="symptoms">Symptoms *</label>
+        <textarea 
+          id="symptoms" 
+          formControlName="symptoms"
+          rows="3"
+          placeholder="Enter patient symptoms..."
+          [class.error]="consultationForm.get('symptoms')?.invalid && consultationForm.get('symptoms')?.touched"></textarea>
+        <span class="error-message" *ngIf="consultationForm.get('symptoms')?.invalid && consultationForm.get('symptoms')?.touched">
+          Symptoms are required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="diagnosis">Diagnosis *</label>
+        <textarea 
+          id="diagnosis" 
+          formControlName="diagnosis"
+          rows="3"
+          placeholder="Enter diagnosis..."
+          [class.error]="consultationForm.get('diagnosis')?.invalid && consultationForm.get('diagnosis')?.touched"></textarea>
+        <span class="error-message" *ngIf="consultationForm.get('diagnosis')?.invalid && consultationForm.get('diagnosis')?.touched">
+          Diagnosis is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea 
+          id="notes" 
+          formControlName="notes"
+          rows="3"
+          placeholder="Additional notes..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Prescriptions</h3>
+        <button type="button" class="add-prescription-btn" (click)="addPrescription()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          Add Prescription
+        </button>
+      </div>
+
+      <div formArrayName="prescriptions" class="prescriptions-list">
+        <div *ngFor="let prescription of prescriptions.controls; let i = index" [formGroupName]="i" class="prescription-item">
+          <div class="prescription-header">
+            <h4>Prescription {{ i + 1 }}</h4>
+            <button type="button" class="remove-btn" (click)="removePrescription(i)" *ngIf="prescriptions.length > 1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Medicine Name *</label>
+              <input 
+                type="text" 
+                formControlName="medicineName"
+                placeholder="Enter medicine name"
+                [class.error]="prescription.get('medicineName')?.invalid && prescription.get('medicineName')?.touched">
+              <span class="error-message" *ngIf="prescription.get('medicineName')?.invalid && prescription.get('medicineName')?.touched">
+                Medicine name is required
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Dosage *</label>
+              <input 
+                type="text" 
+                formControlName="dosage"
+                placeholder="e.g., 500mg"
+                [class.error]="prescription.get('dosage')?.invalid && prescription.get('dosage')?.touched">
+              <span class="error-message" *ngIf="prescription.get('dosage')?.invalid && prescription.get('dosage')?.touched">
+                Dosage is required
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Frequency (M-A-E)*</label>
+              <input 
+                type="text" 
+                formControlName="frequency"
+                placeholder="e.g., 1-1-1"
+                [class.error]="prescription.get('frequency')?.invalid && prescription.get('frequency')?.touched">
+              <span class="error-message" *ngIf="prescription.get('frequency')?.invalid && prescription.get('frequency')?.touched">
+                Frequency is required
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Duration (In Days) *</label>
+              <input 
+                type="text" 
+                formControlName="duration"
+                placeholder="e.g., 7 "
+                [class.error]="prescription.get('duration')?.invalid && prescription.get('duration')?.touched">
+              <span class="error-message" *ngIf="prescription.get('duration')?.invalid && prescription.get('duration')?.touched">
+                Duration is required
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Check box -->
+    <div class="form-section close-episode-section">
+  <div class="close-episode-toggle">
+    <div class="toggle-content">
+      <div class="toggle-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+        </svg>
+      </div>
+      <div class="toggle-text">
+        <span class="toggle-label">Close Episode</span>
+        <span class="toggle-description">Mark this consultation episode as completed and closed</span>
+      </div>
+    </div>
+    <label class="custom-checkbox">
+      <input
+        type="checkbox"
+        formControlName="closeEpisode"
+        id="closeEpisode">
+      <span class="checkmark">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+        </svg>
+      </span>
+    </label>
+  </div>
+</div>
+<!-- check box end -->
+
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="onClose()">Cancel</button>
+      <button type="submit" class="submit-btn" [disabled]="consultationForm.invalid || isSubmitting">
+        <span *ngIf="!isSubmitting">Save Consultation</span>
+        <span *ngIf="isSubmitting">Saving...</span>
+      </button>
+    </div>
+  </form>
+</div>

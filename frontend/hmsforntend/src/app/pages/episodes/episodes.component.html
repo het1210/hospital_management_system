@@ -1,0 +1,27 @@
+<div class="episodes-container">
+  <div class="page-header">
+    <h1>Episodes</h1>
+    <button class="add-btn" (click)="onAddNew()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+      Add New Episode
+    </button>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showForm" (click)="onFormCancelled()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-episode-form
+        [episodeId]="selectedEpisodeId"
+        (formSubmitted)="onFormSubmitted()"
+        (formCancelled)="onFormCancelled()"
+      ></app-episode-form>
+    </div>
+  </div>
+
+  <app-episode-view
+    *ngIf="!showForm"
+    (editEpisode)="onEdit($event)"
+    (deleteEpisode)="onDelete($event)"
+  ></app-episode-view>
+</div>

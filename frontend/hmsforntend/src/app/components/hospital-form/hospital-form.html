@@ -1,0 +1,142 @@
+<div class="hospital-form">
+  <div class="form-header">
+    <h2>{{ isEditMode ? 'Edit Hospital' : 'Add New Hospital' }}</h2>
+    <button class="close-btn" (click)="onClose()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+      </svg>
+    </button>
+  </div>
+
+  <form [formGroup]="hospitalForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label for="name">Hospital Name *</label>
+        <input 
+          type="text" 
+          id="name" 
+          formControlName="name" 
+          placeholder="Enter hospital name"
+          [class.error]="hospitalForm.get('name')?.invalid && hospitalForm.get('name')?.touched">
+        <span class="error-message" *ngIf="hospitalForm.get('name')?.invalid && hospitalForm.get('name')?.touched">
+          Hospital name is required (min 3 characters)
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email" 
+          placeholder="hospital@example.com"
+          [class.error]="hospitalForm.get('email')?.invalid && hospitalForm.get('email')?.touched">
+        <span class="error-message" *ngIf="hospitalForm.get('email')?.invalid && hospitalForm.get('email')?.touched">
+          Valid email is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number *</label>
+        <input 
+          type="tel" 
+          id="phone" 
+          formControlName="phone" 
+          placeholder="1234567890"
+          [class.error]="hospitalForm.get('phone')?.invalid && hospitalForm.get('phone')?.touched">
+        <span class="error-message" *ngIf="hospitalForm.get('phone')?.invalid && hospitalForm.get('phone')?.touched">
+          Valid 10-digit phone number required
+        </span>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="address">Address *</label>
+        <textarea 
+          id="address" 
+          formControlName="address" 
+          placeholder="Enter complete address"
+          rows="3"
+          [class.error]="hospitalForm.get('address')?.invalid && hospitalForm.get('address')?.touched"></textarea>
+        <span class="error-message" *ngIf="hospitalForm.get('address')?.invalid && hospitalForm.get('address')?.touched">
+          Address is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="city">City *</label>
+        <input 
+          type="text" 
+          id="city" 
+          formControlName="city" 
+          placeholder="Enter city"
+          [class.error]="hospitalForm.get('city')?.invalid && hospitalForm.get('city')?.touched">
+        <span class="error-message" *ngIf="hospitalForm.get('city')?.invalid && hospitalForm.get('city')?.touched">
+          City is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="state">State *</label>
+        <input 
+          type="text" 
+          id="state" 
+          formControlName="state" 
+          placeholder="Enter state"
+          [class.error]="hospitalForm.get('state')?.invalid && hospitalForm.get('state')?.touched">
+        <span class="error-message" *ngIf="hospitalForm.get('state')?.invalid && hospitalForm.get('state')?.touched">
+          State is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="pincode">Pincode *</label>
+        <input 
+          type="text" 
+          id="pincode" 
+          formControlName="pincode" 
+          placeholder="123456"
+          [class.error]="hospitalForm.get('pincode')?.invalid && hospitalForm.get('pincode')?.touched">
+        <span class="error-message" *ngIf="hospitalForm.get('pincode')?.invalid && hospitalForm.get('pincode')?.touched">
+          Valid 6-digit pincode required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="registrationNumber">Registration Number *</label>
+        <input 
+          type="text" 
+          id="registrationNumber" 
+          formControlName="registrationNumber" 
+          placeholder="Enter registration number"
+          [class.error]="hospitalForm.get('registrationNumber')?.invalid && hospitalForm.get('registrationNumber')?.touched">
+        <span class="error-message" *ngIf="hospitalForm.get('registrationNumber')?.invalid && hospitalForm.get('registrationNumber')?.touched">
+          Registration number is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="type">Hospital Status *</label>
+        <select 
+          id="type" 
+          formControlName="status"
+          [class.error]="hospitalForm.get('type')?.invalid && hospitalForm.get('type')?.touched">
+          <option value="">Select status</option>
+          <option value="active">Active</option>
+          <option value="inactive">inactive</option>
+          <option value="suspended">suspended</option>
+        </select>
+        <span class="error-message" *ngIf="hospitalForm.get('type')?.invalid && hospitalForm.get('type')?.touched">
+          Hospital type is required
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="onClose()">Cancel</button>
+      <button type="submit" class="submit-btn" [disabled]="hospitalForm.invalid || isSubmitting">
+        <span *ngIf="!isSubmitting">{{ isEditMode ? 'Update Hospital' : 'Save Hospital' }}</span>
+        <span *ngIf="isSubmitting">{{ isEditMode ? 'Updating...' : 'Saving...' }}</span>
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,401 @@
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  color: white;
+  position: fixed;
+  left: 0;
+  top: 0;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+
+  &.collapsed {
+    width: 70px;
+
+    .logo-text,
+    .nav-label,
+    .user-details {
+      opacity: 0;
+      width: 0;
+    }
+
+    .user-info {
+      padding: 15px 11px;
+      justify-content: center;
+    }
+  }
+}
+
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    svg {
+      width: 36px;
+      height: 36px;
+      color: #667eea;
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: opacity 0.3s;
+    }
+  }
+
+  .toggle-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      color: white;
+    }
+  }
+}
+
+.user-info {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+
+  .user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg {
+      width: 28px;
+      height: 28px;
+      color: white;
+    }
+  }
+
+  .user-details {
+    flex: 1;
+    min-width: 0;
+    transition: opacity 0.3s;
+
+    .user-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 6px;
+    }
+
+    .role-selector {
+      .role-dropdown {
+        width: 100%;
+        padding: 6px 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        color: white;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.15);
+          border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        &:focus {
+          outline: none;
+          border-color: #667eea;
+          box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.7;
+        }
+
+        option {
+          background: #1e293b;
+          color: white;
+        }
+      }
+    }
+
+    .user-role {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.sidebar-nav {
+  padding: 20px 0;
+  overflow-y: auto;
+  height: calc(100vh - 220px);
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s;
+    position: relative;
+    gap: 14px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: #667eea;
+      transform: scaleY(0);
+      transition: transform 0.2s;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+
+      .nav-icon::before {
+        transform: scale(1.1);
+      }
+    }
+
+    &.active {
+      background: rgba(102, 126, 234, 0.15);
+      color: white;
+
+      &::before {
+        transform: scaleY(1);
+      }
+
+      .nav-icon::before {
+        color: #667eea;
+      }
+    }
+
+    &.logout {
+      margin-top: auto;
+      color: #fc8181;
+
+      &:hover {
+        background: rgba(252, 129, 129, 0.1);
+        color: #fc8181;
+      }
+
+      .nav-icon::before {
+        color: #fc8181;
+      }
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+
+      &::before {
+        font-size: 20px;
+        transition: all 0.2s;
+      }
+
+      &[data-icon="dashboard"]::before {
+        content: '📊';
+      }
+
+      &[data-icon="hospital"]::before {
+        content: '🏥';
+      }
+
+      &[data-icon="subscription"]::before {
+        content: '💳';
+      }
+
+      &[data-icon="users"]::before {
+        content: '👥';
+      }
+
+      &[data-icon="settings"]::before {
+        content: '⚙️';
+      }
+
+      &[data-icon="logs"]::before {
+        content: '📋';
+      }
+
+      &[data-icon="reports"]::before {
+        content: '📈';
+      }
+
+      &[data-icon="profile"]::before {
+        content: '👤';
+      }
+
+      &[data-icon="logout"]::before {
+        content: '🚪';
+      }
+
+      &[data-icon="departments"]::before {
+        content: '🏢';
+      }
+
+      &[data-icon="doctor"]::before {
+        content: '👨‍⚕️';
+      }
+
+      &[data-icon="staff"]::before {
+        content: '👔';
+      }
+
+      &[data-icon="patients"]::before {
+        content: '🤒';
+      }
+
+      &[data-icon="appointments"]::before {
+        content: '📅';
+      }
+
+      &[data-icon="billing"]::before {
+        content: '💰';
+      }
+
+      &[data-icon="inventory"]::before {
+        content: '📦';
+      }
+
+      &[data-icon="consultation"]::before {
+        content: '🩺';
+      }
+
+      &[data-icon="prescription"]::before {
+        content: '💊';
+      }
+
+      &[data-icon="lab"]::before {
+        content: '🔬';
+      }
+
+      &[data-icon="ward"]::before {
+        content: '🛏️';
+      }
+
+      &[data-icon="vitals"]::before {
+        content: '❤️';
+      }
+
+      &[data-icon="medication"]::before {
+        content: '💉';
+      }
+
+      &[data-icon="register"]::before {
+        content: '📝';
+      }
+
+      &[data-icon="checkin"]::before {
+        content: '✅';
+      }
+
+      &[data-icon="upload"]::before {
+        content: '⬆️';
+      }
+
+      &[data-icon="dispense"]::before {
+        content: '🏪';
+      }
+
+      &[data-icon="sales"]::before {
+        content: '🛒';
+      }
+
+      &[data-icon="book"]::before {
+        content: '📖';
+      }
+
+      &[data-icon="file"]::before {
+        content: '📁';
+      }
+    }
+
+    .nav-label {
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: opacity 0.3s;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+
+    &:hover {
+      width: 260px;
+
+      .logo-text,
+      .nav-label {
+        opacity: 1;
+        width: auto;
+      }
+    }
+  }
+}

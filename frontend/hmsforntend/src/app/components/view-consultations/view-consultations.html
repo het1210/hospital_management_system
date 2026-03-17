@@ -1,0 +1,93 @@
+<div class="consultations-table-container">
+  <div class="loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading consultations...</p>
+  </div>
+
+  <div *ngIf="!isLoading && consultations.length === 0" class="no-data">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+      <path
+        d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+    </svg>
+    <p>No consultations found</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!isLoading && consultations.length > 0">
+    <table class="consultations-table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Patient</th>
+          <th>Doctor</th>
+          <th>Symptoms</th>
+          <th>Diagnosis</th>
+          <th>Prescriptions</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let consultation of consultations; let i = index">
+          <td>{{ currentPage * pageSize + i + 1 }}</td>
+          <td>{{ consultation.patientName }}</td>
+          <td>{{ consultation.doctorName }}</td>
+          <td class="symptoms-cell">{{ consultation.symptoms }}</td>
+          <td class="diagnosis-cell">{{ consultation.diagnosis }}</td>
+          <td>{{ consultation.prescriptions?.length || 0 }}</td>
+          <td class="actions">
+            <button class="action-btn view" title="View" (click)="viewConsultation(consultation)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+              </svg>
+            </button>
+            <button class="action-btn print" title="Print PDF" (click)="printConsultation(consultation)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z" />
+              </svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="!isLoading && consultations.length > 0">
+    <div class="page-size-selector">
+      <label>Show:</label>
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="size-dropdown">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="50">50</option>
+      </select>
+      <span>per page</span>
+    </div>
+
+    <div class="page-controls">
+      <button class="page-btn" (click)="previousPage()" [disabled]="currentPage === 0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+        </svg>
+      </button>
+
+      <button *ngFor="let page of pages" class="page-btn" [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page + 1 }}
+      </button>
+
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages - 1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+        </svg>
+      </button>
+    </div>
+
+    <span class="page-info">Total: {{ totalElements }} consultations</span>
+  </div>
+</div>
+
+<!-- Consultation Details Modal -->
+<app-view-consultation-details *ngIf="selectedConsultation" [consultation]="selectedConsultation"
+  (close)="closeDetails()">
+</app-view-consultation-details>

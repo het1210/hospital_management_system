@@ -1,0 +1,210 @@
+<div class="appointment-form">
+  <div class="form-header">
+    <h2>{{ isEditMode ? 'Edit Appointment' : 'Book New Appointment' }}</h2>
+    <button class="close-btn" (click)="onClose()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+      </svg>
+    </button>
+  </div>
+
+  <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="hospitalId">Hospital *</label>
+        <select id="hospitalId" formControlName="hospitalId" (change)="onHospitalChange()"
+          [class.error]="appointmentForm.get('hospitalId')?.invalid && appointmentForm.get('hospitalId')?.touched">
+          <option value="" disabled>Select hospital</option>
+          <option *ngFor="let hospital of hospitals" [value]="hospital.id">{{ hospital.name }}</option>
+        </select>
+        <span class="error-message"
+          *ngIf="appointmentForm.get('hospitalId')?.invalid && appointmentForm.get('hospitalId')?.touched">
+          Hospital is required
+        </span>
+      </div>
+
+
+      <div class="form-group autocomplete-group">
+        <label for="patientSearch">Patient *</label>
+        <div class="select-dropdown" [class.open]="showPatientDropdown">
+          <div class="select-trigger" (click)="togglePatientDropdown()"
+            [class.error]="appointmentForm.get('patientId')?.invalid && appointmentForm.get('patientId')?.touched"
+            [class.disabled]="isPatientFieldDisabled">
+            <span class="selected-value">{{ patientSearchText || 'Select patient' }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="dropdown-icon">
+              <path d="M7 10l5 5 5-5z" />
+            </svg>
+          </div>
+          <div class="dropdown-menu" *ngIf="showPatientDropdown && !isPatientFieldDisabled">
+            <div class="search-box">
+              <input type="text" [(ngModel)]="patientSearchText" [ngModelOptions]="{standalone: true}"
+                (input)="onPatientSearch($event)" placeholder="Search patient..." (click)="$event.stopPropagation()">
+            </div>
+            <div class="dropdown-items">
+              <div *ngFor="let patient of filteredPatients" class="dropdown-item" (click)="selectPatient(patient)">
+                {{ patient.displayText }}
+              </div>
+              <div *ngIf="filteredPatients.length === 0" class="no-results">
+                No patients found
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="error-message"
+          *ngIf="appointmentForm.get('patientId')?.invalid && appointmentForm.get('patientId')?.touched">
+          Patient is required
+        </span>
+      </div>
+
+      <div class="form-group select-with-search">
+        <label for="doctorSelect">Doctor *</label>
+        <div class="select-dropdown" [class.open]="isDoctorDropdownOpen">
+          <div class="select-trigger" (click)="toggleDoctorDropdown()"
+            [class.error]="appointmentForm.get('doctorId')?.invalid && appointmentForm.get('doctorId')?.touched">
+            <span class="selected-value">{{ doctorSearchText || 'Select doctor' }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="dropdown-icon">
+              <path d="M7 10l5 5 5-5z" />
+            </svg>
+          </div>
+          <div class="dropdown-menu" *ngIf="isDoctorDropdownOpen">
+            <div class="search-box">
+              <input type="text" [(ngModel)]="doctorSearchText" [ngModelOptions]="{standalone: true}"
+                (input)="onDoctorSearch($event)" placeholder="Search doctor..." (click)="$event.stopPropagation()">
+            </div>
+            <div class="dropdown-items">
+              <div *ngFor="let doctor of filteredDoctors" class="dropdown-item" (click)="selectDoctor(doctor)">
+                {{ doctor.displayText }}
+              </div>
+              <div *ngIf="filteredDoctors.length === 0" class="no-results">
+                No doctors found
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="error-message"
+          *ngIf="appointmentForm.get('doctorId')?.invalid && appointmentForm.get('doctorId')?.touched">
+          Doctor is required
+        </span>
+      </div>
+
+      <div class="form-group select-with-search">
+        <label for="episodeSelect">Episode</label>
+        <div class="select-dropdown" [class.open]="isEpisodeDropdownOpen">
+          <div class="select-trigger" (click)="toggleEpisodeDropdown()">
+            <span class="selected-value">{{ episodeSearchText || 'Select episode (optional)' }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="dropdown-icon">
+              <path d="M7 10l5 5 5-5z" />
+            </svg>
+          </div>
+          <div class="dropdown-menu" *ngIf="isEpisodeDropdownOpen">
+            <div class="search-box">
+              <input type="text" [(ngModel)]="episodeSearchText" [ngModelOptions]="{standalone: true}"
+                (input)="onEpisodeSearch($event)" placeholder="Search episode..." (click)="$event.stopPropagation()">
+            </div>
+            <div class="dropdown-items">
+              <div *ngFor="let episode of filteredEpisodes" class="dropdown-item" (click)="selectEpisode(episode)">
+                {{ episode.displayText }}
+              </div>
+              <div *ngIf="filteredEpisodes.length === 0" class="no-results">
+                No episodes found
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="type">Appointment Type (Encounter Type)*</label>
+        <select id="type" formControlName="type"
+          [class.error]="appointmentForm.get('type')?.invalid && appointmentForm.get('type')?.touched">
+          <option value="" disabled selected>Select type</option>
+          <option value="OPD">OPD</option>
+          <option value="LAB">LAB</option>
+          <option value="RADIOLOGY">RADIOLOGY</option>
+          <option value="INPATIENT">INPATIENT</option>
+          <option value="ICU">ICU</option>
+          <option value="SURGERY">SURGERY</option>
+          <option value="FOLLOW_UP">FOLLOW-UP</option>
+        </select>
+        <span class="error-message"
+          *ngIf="appointmentForm.get('type')?.invalid && appointmentForm.get('type')?.touched">
+          Appointment type is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status *</label>
+        <select id="status" formControlName="status"
+          [class.error]="appointmentForm.get('status')?.invalid && appointmentForm.get('status')?.touched">
+          <option value="BOOKED">BOOKED</option>
+          <option value="CHECKIN">CHECKIN</option>
+          <option value="COMPLETED">COMPLETED</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+        <span class="error-message"
+          *ngIf="appointmentForm.get('status')?.invalid && appointmentForm.get('status')?.touched">
+          Status is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="appointmentDate">Appointment Date *</label>
+        <input type="date" id="appointmentDate" formControlName="appointmentDate" (change)="appointmentDate($event)"
+          [min]="minDate"
+          [class.error]="appointmentForm.get('appointmentDate')?.invalid && appointmentForm.get('appointmentDate')?.touched">
+        <span class="error-message"
+          *ngIf="appointmentForm.get('appointmentDate')?.invalid && appointmentForm.get('appointmentDate')?.touched">
+          Appointment date is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="startTime">Start Time *</label>
+        <input type="time" id="startTime" formControlName="startTime"
+          [class.error]="appointmentForm.get('startTime')?.invalid && appointmentForm.get('startTime')?.touched">
+        <span class="error-message"
+          *ngIf="appointmentForm.get('startTime')?.invalid && appointmentForm.get('startTime')?.touched">
+          Start time is required
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="endTime">End Time *</label>
+        <input type="time" id="endTime" formControlName="endTime"
+          [class.error]="appointmentForm.get('endTime')?.invalid && appointmentForm.get('endTime')?.touched">
+        <span class="error-message"
+          *ngIf="appointmentForm.get('endTime')?.invalid && appointmentForm.get('endTime')?.touched">
+          End time is required
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="onClose()">Cancel</button>
+      <button type="submit" class="submit-btn" [disabled]="appointmentForm.invalid || isSubmitting">
+        <span *ngIf="!isSubmitting">{{ isEditMode ? 'Update Appointment' : 'Book Appointment' }}</span>
+        <span *ngIf="isSubmitting">{{ isEditMode ? 'Updating...' : 'Booking...' }}</span>
+      </button>
+    </div>
+  </form>
+
+  <div class="doctor-appointments" *ngIf="doctorAppointments.length > 0">
+    <h3>Doctor's Appointments</h3>
+    <div class="appointments-list">
+      <div class="appointment-item" *ngFor="let apt of doctorAppointments">
+        <div class="apt-info">
+          <span class="apt-patient">{{ apt.patientName }}</span>
+          <span class="apt-date">{{ formatDate(apt.appointmentStart) }}</span>
+        </div>
+        <div class="apt-time">
+          {{ formatTime(apt.appointmentStart) }} - {{ formatTime(apt.appointmentEnd) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-appointments" *ngIf="loadingAppointments">
+    <p>Loading doctor's appointments...</p>
+  </div>
+</div>

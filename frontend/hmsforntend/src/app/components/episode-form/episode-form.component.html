@@ -1,0 +1,102 @@
+<div class="episode-form">
+  <div class="form-header">
+    <h2>{{ isEditMode ? 'Edit Episode' : 'New Episode' }}</h2>
+    <button class="close-btn" (click)="onCancel()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+      </svg>
+    </button>
+  </div>
+
+  <form [formGroup]="episodeForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="patientId">Patient *</label>
+        <div class="select-dropdown" [class.open]="showPatientDropdown">
+          <div class="select-trigger" (click)="togglePatientDropdown()">
+            <span class="selected-value">{{ patientSearchText || 'Select patient' }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="dropdown-icon">
+              <path d="M7 10l5 5 5-5z"/>
+            </svg>
+          </div>
+          <div class="dropdown-menu" *ngIf="showPatientDropdown">
+            <div class="search-box">
+              <input
+                type="text"
+                [(ngModel)]="patientSearchText"
+                [ngModelOptions]="{standalone: true}"
+                (input)="onPatientSearch($event)"
+                placeholder="Search by name, identifier or Aadhar"
+                (click)="$event.stopPropagation()"
+              />
+            </div>
+            <div class="dropdown-items">
+              <div
+                *ngFor="let patient of filteredPatients"
+                class="dropdown-item"
+                (click)="selectPatient(patient)">
+                {{ patient.displayText }}
+              </div>
+              <div *ngIf="filteredPatients.length === 0" class="no-results">
+                No patients found
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="episodeType">Episode Type *</label>
+        <input
+          type="text"
+          id="episodeType"
+          formControlName="episodeType"
+          placeholder="Enter episode type"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="startDate">Start Date *</label>
+        <input
+          type="date"
+          id="startDate"
+          formControlName="startDate"
+        />
+      </div>
+
+      <div class="form-group" *ngIf="isEditMode">
+        <label for="endDate">End Date *</label>
+        <input
+          type="date"
+          id="endDate"
+          formControlName="endDate"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status *</label>
+        <select id="status" formControlName="status">
+          <option value="ACTIVE">ACTIVE</option>
+          <option value="CLOSE">CLOSE</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label for="reason">Reason *</label>
+        <textarea
+          id="reason"
+          formControlName="reason"
+          rows="3"
+          placeholder="Enter reason"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="submit-btn" [disabled]="!episodeForm.valid">
+        {{ isEditMode ? 'Update Episode' : 'Create Episode' }}
+      </button>
+    </div>
+  </form>
+</div>

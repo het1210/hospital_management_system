@@ -1,0 +1,142 @@
+<div class="appointments-container">
+  <div class="page-header">
+    <h1>Appointments</h1>
+    <button class="add-btn" (click)="openForm()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+      Book Appointment
+    </button>
+  </div>
+
+  <!-- Table View for All Roles -->
+  <div class="table-view">
+    <div class="date-filter-section">
+      <div class="date-inputs">
+        <div class="date-input-group">
+          <label>From:</label>
+          <input type="date" [(ngModel)]="startDate" (change)="filterByDateRange()" class="date-input">
+        </div>
+        <div class="date-input-group">
+          <label>To:</label>
+          <input type="date" [(ngModel)]="endDate" (change)="filterByDateRange()" class="date-input">
+        </div>
+      </div>
+      <div class="quick-filters">
+        <button class="quick-btn today" (click)="setToday()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/>
+          </svg>
+          Today
+        </button>
+        <button class="quick-btn tomorrow" (click)="setTomorrow()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM12 13h5v5h-5z"/>
+          </svg>
+          Tomorrow
+        </button>
+        <button class="quick-btn clear" (click)="clearDateFilter()" *ngIf="startDate || endDate">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table *ngIf="!isLoading && appointments.length > 0">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Patient Name</th>
+            <th>Doctor Name</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let appointment of appointments, let i = index">
+            <td>{{ currentPage * pageSize + i + 1 }}</td>
+            <td>{{ appointment.patientName || 'N/A' }}</td>
+            <td>{{ appointment.doctorName || 'N/A' }}</td>
+            <td>{{ formatDate(appointment.appointmentStart) }}</td>
+            <td>{{ formatTime(appointment.appointmentStart) }}</td>
+            <td>{{ formatTime(appointment.appointmentEnd) }}</td>
+            <td>
+              <select 
+                class="status-dropdown" 
+                [value]="appointment.status" 
+                (change)="onStatusChange(appointment, $event)"
+                [class.status-booked]="appointment.status === 'BOOKED'"
+                [class.status-checkin]="appointment.status === 'CHECKED_IN'"
+                [class.status-completed]="appointment.status === 'COMPLETED'"
+                [class.status-cancelled]="appointment.status === 'CANCELLED'">
+                <option value="BOOKED">BOOKED</option>
+                <option value="CHECKED_IN">CHECK IN</option>
+                <option value="COMPLETED">COMPLETED</option>
+                <option value="CANCELLED">CANCELLED</option>
+              </select>
+            </td>
+            <td class="actions">
+              <button class="edit-btn" (click)="editAppointment(appointment)" title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+              </button>
+              <button class="delete-btn" (click)="deleteAppointment(appointment.id!)" title="Delete">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                </svg>
+              </button>
+              <button class="consultation-btn" [disabled]="appointment.status !== 'CHECKED_IN'" (click)="openConsultationForm(appointment)" title="Consultation" *ngIf="userRole === 'doctor'">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="no-data" *ngIf="!isLoading && appointments.length === 0">
+        <p>No appointments found</p>
+      </div>
+
+      <div class="loading" *ngIf="isLoading">
+        <p>Loading appointments...</p>
+      </div>
+
+      <div class="pagination" *ngIf="!isLoading && appointments.length > 0 && totalPages > 1">
+        <button (click)="previousPage()" [disabled]="currentPage === 0">Previous</button>
+        <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+        <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment Form Modal -->
+<div class="modal-overlay" *ngIf="showForm" (click)="onFormClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <app-appointment-form
+      [appointment]="selectedAppointment"
+      (close)="onFormClose()"
+      (saved)="onFormSaved()">
+    </app-appointment-form>
+  </div>
+</div>
+
+<!-- Consultation Form Modal -->
+<div class="modal-overlay" *ngIf="showConsultationForm" (click)="onConsultationFormClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <app-consultation-form
+      [appointment]="selectedAppointment"
+      (close)="onConsultationFormClose()"
+      (saved)="onConsultationSaved()">
+    </app-consultation-form>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+<div class="qr-container">
+<div class="header-actions">
+    <button class="back-btn" (click)="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+      </svg>
+      Back to Episodes
+    </button>
+  </div>
+
+  <div class="card">
+
+    <h2>Patient QR Code</h2>
+
+    <div class="qr-section">
+      <qrcode
+        [qrdata]="qrValue"
+        [width]="220"
+        [errorCorrectionLevel]="'M'">
+      </qrcode>
+    </div>
+
+    <div class="patient-info">
+
+      <h3>{{patient?.firstName}} {{patient?.lastName}}</h3>
+
+      <p><strong>Patient ID:</strong> {{patient?.patientIdentifier}}</p>
+      <p><strong>Phone:</strong> {{patient?.phone}}</p>
+      <p><strong>Email:</strong> {{patient?.email}}</p>
+      <p><strong>Gender:</strong> {{patient?.gender}}</p>
+      <p><strong>DOB:</strong> {{patient?.dateOfBirth}}</p>
+
+      <p class="address">
+        <strong>Address:</strong>
+        {{patient?.address}}, {{patient?.city}},
+        {{patient?.state}} - {{patient?.pincode}}
+      </p>
+
+    </div>
+
+    <div class="actions no-print">
+
+      <button class="print-btn" (click)="printQR()">
+        Print
+      </button>
+
+      <button class="download-btn" (click)="downloadQR()">
+        Download
+      </button>
+
+      <button>Back</button>
+
+    </div>
+
+  </div>
+
+</div>

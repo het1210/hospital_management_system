@@ -1,0 +1,96 @@
+<div class="hospitals-table-container">
+  <div class="loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading hospitals...</p>
+  </div>
+
+  <div *ngIf="!isLoading && hospitals.length === 0" class="no-data">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/>
+    </svg>
+    <p>No hospitals found</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!isLoading && hospitals.length > 0">
+    <table class="hospitals-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>City</th>
+          <th>State</th>
+          <th>Registration No.</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hospital of hospitals">
+          <td>{{ hospital.id }}</td>
+          <td class="hospital-name">{{ hospital.name }}</td>
+          <td>{{ hospital.email }}</td>
+          <td>{{ hospital.phone }}</td>
+          <td>{{ hospital.city }}</td>
+          <td>{{ hospital.state }}</td>
+          <td>{{ hospital.registrationNumber }}</td>
+          <td>
+            <span class="status-badge" [class.active]="hospital.status === 'ACTIVE'">
+              {{ hospital.status }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="action-btn edit" title="Edit" (click)="editHospital(hospital)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+              </svg>
+            </button>
+            <button class="action-btn delete" title="Delete" (click)="deleteHospital(hospital.id!)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+              </svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="!isLoading && hospitals.length > 0">
+    <div class="page-size-selector">
+      <label>Show:</label>
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="size-dropdown">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="50">50</option>
+      </select>
+      <span>per page</span>
+    </div>
+
+    <div class="page-controls">
+      <button class="page-btn" (click)="previousPage()" [disabled]="currentPage === 0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        </svg>
+      </button>
+      
+      <button 
+        *ngFor="let page of pages" 
+        class="page-btn" 
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page + 1 }}
+      </button>
+      
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages - 1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+      </button>
+    </div>
+    
+    <span class="page-info">Total: {{ totalElements }} hospitals</span>
+  </div>
+</div>

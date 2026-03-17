@@ -1,0 +1,100 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+#          default-filters:
+#            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+#          globalcors:
+#            cors-configurations:
+#              '[/**]':
+#                allowedOriginPatterns:
+#                  - "http://localhost:4200"
+#                  - "https://your-production-domain.com"
+#                allowedMethods:
+#                  - GET
+#                  - POST
+#                  - PUT
+#                  - DELETE
+#                  - OPTIONS
+#                  - PATCH
+#                allowedHeaders:
+#                  - "Authorization"
+#                  - "Content-Type"
+#                  - "Accept"
+#                  - "Origin"
+#                  - "X-Requested-With"
+#                  - "X-Hospital-Id"
+#                  - "X-User-Id"
+#                  - "X-Username"
+#                  - "X-User-Roles"
+#                exposedHeaders:
+#                  - "Authorization"
+#                allowCredentials: true
+#                maxAge: 3600
+          routes:
+            - id: auth-service  #Auth Service
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth/**
+              filters:
+                - name: JwtAuthenticationFilter
+                  args:
+                    skipAuth: true
+            - id: hospital-service #Hospital Service
+              uri: lb://hospital-service
+              predicates:
+                - Path=/api/hospital/**
+              filters:
+                - name: JwtAuthenticationFilter
+            - id: user-service #User Service which pointing to auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/users/**
+              filters:
+                - name: JwtAuthenticationFilter
+            - id: role-service #role Service which pointing to auth-service
+              uri : lb://auth-service
+              predicates:
+                - Path=/api/role/**
+              filters:
+               - name: JwtAuthenticationFilter
+            - id: patient-service #patient service
+              uri: lb://patient-service
+              predicates:
+                - Path=/api/patients/**
+              filters:
+                - name: JwtAuthenticationFilter
+            - id: appointment-service #appointment Service which pointing to patient-service
+              uri: lb://patient-service
+              predicates:
+                - Path=/api/appointments/**
+              filters:
+                - name: JwtAuthenticationFilter
+            - id: episode-service #episode Service which pointing to patient-service
+              uri: lb://patient-service
+              predicates:
+                - Path=/api/episodes/**
+              filters:
+                - name: JwtAuthenticationFilter
+            - id: consultation-service #consultation Service which pointing to patient-service
+              uri: lb://patient-service
+              predicates:
+                - Path=/api/consultations/**
+              filters:
+                - name: JwtAuthenticationFilter
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970

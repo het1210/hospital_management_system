@@ -1,0 +1,115 @@
+<div class="view-episode-container">
+  <div class="header-actions">
+    <button class="back-btn" (click)="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+      </svg>
+      Back to Episodes
+    </button>
+  </div>
+
+  <div *ngIf="!episodeDetails" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading episode details...</p>
+  </div>
+
+  <ng-container *ngIf="episodeDetails">
+    <!-- EPISODE HEADER INFO -->
+    <div class="episode-header-card">
+      <div class="card-title">
+        <h2>Episode Overview</h2>
+        <span class="status-badge" [class.active]="!episodeDetails.episodeDto.endDate"
+          [class.close]="!!episodeDetails.episodeDto.endDate">
+          {{ episodeDetails.episodeDto.endDate ? 'Completed' : 'Active' }}
+        </span>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Patient Name</span>
+          <span class="value">{{ episodeDetails.episodeDto.patientName || 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Patient ID</span>
+          <span class="value">#{{ episodeDetails.episodeDto.patientId }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Episode Type</span>
+          <span class="value">{{ episodeDetails.episodeDto.episodeType }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Start Date</span>
+          <span class="value">{{ episodeDetails.episodeDto.startDate | date:'mediumDate' }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="label">Reason</span>
+          <span class="value reason-text">{{ episodeDetails.episodeDto.reason || 'Not specified' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENCOUNTERS SECTION -->
+    <div class="encounters-section">
+      <div class="section-header">
+        <h3>Associated Encounters ({{ episodeDetails.encounterDto.length || 0 }})</h3>
+      </div>
+
+      <div *ngIf="!episodeDetails.encounterDto || episodeDetails.encounterDto.length === 0" class="empty-state">
+        <p>No encounters found for this episode.</p>
+      </div>
+
+      <div class="encounters-grid" *ngIf="episodeDetails.encounterDto && episodeDetails.encounterDto.length > 0">
+        <div class="encounter-card" *ngFor="let encounter of episodeDetails.encounterDto">
+          <div class="encounter-card-header">
+            <h4>Encounter #{{ encounter.id }}</h4>
+            <div class="badges">
+              <span class="encounter-type">{{ encounter.type }}</span>
+              <span class="status-badge encounter-status" [class.active]="!encounter.endTime"
+                [class.close]="!!encounter.endTime">
+                {{ encounter.endTime ? 'Completed' : 'Active' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="encounter-details">
+            <div class="detail-row">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+              </svg>
+              <span>Doctor ID: #{{ encounter.doctorId }}</span>
+            </div>
+
+            <div class="detail-row">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon">
+                <path d="M14.5 10c0-1.38-1.12-2.5-2.5-2.5S9.5 8.62 9.5 10s1.12 2.5 2.5 2.5 2.5-1.12 2.5-2.5zm-2.5 4c-1.67 0-5 .83-5 2.5V18h10v-1.5c0-1.67-3.33-2.5-5-2.5z"/>
+              </svg>
+              <span>Doctor Name: {{ encounter.doctorName || 'N/A' }} </span>
+            </div>
+
+            <div class="detail-row" *ngIf="encounter.appointmentId">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon">
+                <path
+                  d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" />
+              </svg>
+              <span>Appointment: #{{ encounter.appointmentId }}</span>
+            </div>
+
+            <div class="detail-row time-row">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon">
+                <path
+                  d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+              </svg>
+              <div class="times">
+                <span class="time-text">{{ encounter.startTime | date:'short' }}</span>
+                <span class="time-divider">to</span>
+                <span class="time-text">{{ encounter.endTime | date:'shortTime' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

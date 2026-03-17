@@ -1,0 +1,65 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h1>{{ welcomeMessage }}</h1>
+    <p class="subtitle">Overview of your key metrics</p>
+  </div>
+  
+  <div class="stats-grid" [class.grid-large]="stats.length > 4">
+    <div *ngFor="let stat of stats" class="stat-card" (click)="onStatClick(stat)" [style.--card-color]="stat.color">
+      <div class="stat-icon">{{ stat.icon }}</div>
+      <div class="stat-info">
+        <h3>{{ stat.title }}</h3>
+        <p class="stat-value">{{ stat.value }}</p>
+      </div>
+    </div>
+  </div>
+
+<!-- Charts -->
+<div class="chart-section" *ngIf="userRole === 'doctor' || userRole === 'frontdesk'">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>Appointment Breakdown</h2>
+      <p class="chart-subtitle">Appointment status overview</p>
+    </div>
+    <div class="date-filter">
+      <div class="date-field">
+        <label>From</label>
+        <input type="date" [(ngModel)]="dateFrom" (change)="onDateFilter()" />
+      </div>
+      <span class="date-sep">→</span>
+      <div class="date-field">
+        <label>To</label>
+        <input type="date" [(ngModel)]="dateTo" (change)="onDateFilter()" />
+      </div>
+      <button class="clear-btn" (click)="clearDateFilter()" *ngIf="dateFrom || dateTo">Clear</button>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill" *ngFor="let m of appointmentMetrics">
+        <span class="pill-dot" [style.background]="m.color"></span>
+        <span class="pill-label">{{ m.label }}</span>
+        <span class="pill-value">{{ m.value }}</span>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-container">
+        <canvas id="appointmentDoughnut"></canvas>
+      </div>
+      <div class="chart-container bar-container">
+        <canvas id="appointmentBar"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Charts Ends -->
+
+
+  <!-- Calendar View for Doctors -->
+  <div class="calendar-section" *ngIf="userRole === 'doctor' && isShowCalendar">
+    <h2>My Appointments Calendar</h2>
+    <div class="calendar-wrapper">
+      <full-calendar [options]="calendarOptions"></full-calendar>
+    </div>
+  </div>
+</div>

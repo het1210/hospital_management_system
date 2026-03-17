@@ -1,0 +1,89 @@
+<div class="episode-view-container">
+  <div class="search-bar">
+    <div class="form-group autocomplete-group">
+      <div class="select-dropdown" [class.open]="showPatientDropdown">
+        <div class="select-trigger" (click)="togglePatientDropdown()">
+          <span class="selected-value">{{ patientSearchText || 'Search patient episodes...' }}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="dropdown-icon">
+            <path d="M7 10l5 5 5-5z"/>
+          </svg>
+        </div>
+        <div class="dropdown-menu" *ngIf="showPatientDropdown">
+          <div class="search-box">
+            <input 
+              type="text" 
+              [(ngModel)]="patientSearchText"
+              [ngModelOptions]="{standalone: true}"
+              (input)="onSearch($event)"
+              placeholder="Type patient name or adhaar..."
+              (click)="$event.stopPropagation()">
+          </div>
+          <div class="dropdown-items">
+            <div 
+              *ngFor="let patient of filteredPatients" 
+              class="dropdown-item"
+              (click)="selectPatient(patient)">
+              {{ patient.displayText }}
+            </div>
+            <div *ngIf="filteredPatients.length === 0" class="no-results">
+              No patients found
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="search-btn" (click)="onSearchClick()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+      </svg>
+      Search
+    </button>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="episode-table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Patient Name</th>
+          <th>Episode Type</th>
+          <th>Episode Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let episode of episodes; let i = index">
+          <td>{{ currentPage * pageSize + i + 1 }}</td>
+          <td>{{ episode.patientName }}</td>
+          <td>{{ episode.episodeType }}</td>
+          <td>
+            <span class="status-badge" [class.active]="episode.status === 'ACTIVE'"
+              [class.close]="episode.status === 'CLOSE'">
+              {{ episode.status }}
+            </span>
+          </td>
+          <td class="actions">
+            <button *ngIf="user === 'doctor'" class="action-btn edit" (click)="onEdit(episode.id!)">Edit</button>
+            <button *ngIf="user === 'doctor'" class="action-btn delete" (click)="onDelete(episode.id!)">Delete</button>
+            <button class="action-btn view" (click)="onView(episode.id!)">View</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="no-data" *ngIf="episodes.length === 0">
+    <p>No episodes found</p>
+  </div>
+
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="page-btn" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">
+      Previous
+    </button>
+    <span class="page-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+    <button class="page-btn" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+      Next
+    </button>
+  </div>
+</div>
