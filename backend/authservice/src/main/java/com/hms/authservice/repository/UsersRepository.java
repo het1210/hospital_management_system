@@ -38,6 +38,25 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
     @Query("SELECT u FROM Users u JOIN u.roles r WHERE r.name = 'ROLE_DOCTOR' AND u.hospitalId = :hospitalId AND (u.firstName LIKE CONCAT('%', :query, '%') OR u.lastName LIKE CONCAT('%', :query, '%'))")
     List<Users> search(@Param("query") String query, @Param("hospitalId") Integer hospitalId);
 
+    @Query("SELECT COUNT(u) FROM Users u WHERE u.hospitalId = :hospitalId AND u.status = 'active' ")
+    Integer getTotalUSer(@Param("hospitalId") Integer hospitalId);
+
+    @Query("SELECT COUNT(u) FROM Users u WHERE u.status = 'active' ")
+    Integer getTotalUSer();
+
+    @Query("SELECT COUNT(u) FROM Users u JOIN u.roles r WHERE u.hospitalId = :hospitalId and r.id = 3 AND u.status = 'active'")
+    Integer getTotalDoctorUSer(@Param("hospitalId") Integer hospitalId);
+
+    @Query("SELECT COUNT(u) FROM Users u JOIN u.roles r WHERE r.id = 3 AND u.status = 'active'")
+    Integer getTotalDoctorUSer();
+
+    @Query("SELECT COUNT(u) FROM Users u JOIN u.roles r WHERE u.hospitalId = :hospitalId and r.id = 4 AND u.status = 'active'")
+    Integer getTotalNurse(Integer hospitalId);
+
+    @Query("SELECT COUNT(u) FROM Users u JOIN u.roles r WHERE r.id = 4 AND u.status = 'active'")
+    Integer getTotalNurse();
+
+
 //    @Query("SELECT u FROM Users u WHERE u.id IN :ids")
 //    List<Users> findAll(@Param("ids") List<Integer> ids);
 }

@@ -1,0 +1,35 @@
+<div class="notfound-page">
+  <div class="bg-grid"></div>
+  <div class="floating-orb orb-1"></div>
+  <div class="floating-orb orb-2"></div>
+  <div class="floating-orb orb-3"></div>
+
+  <div class="content">
+    <div class="error-code">
+      <span class="digit">4</span>
+      <span class="digit zero">
+        <div class="zero-inner">
+          <div class="zero-dot"></div>
+        </div>
+      </span>
+      <span class="digit">4</span>
+    </div>
+
+    <div class="divider">
+      <span class="divider-line"></span>
+      <span class="divider-icon">✦</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <h1 class="title">Page Not Found</h1>
+    <p class="description">
+      The page you're looking for has gone missing.<br>
+      It may have been moved, deleted, or never existed.
+    </p>
+
+    <button class="home-btn" (click)="redirectHome()">
+      <span class="btn-icon">←</span>
+      <span>{{ isLoggedIn ? 'Back to Dashboard' : 'Go to Login'}}</span>
+    </button>
+  </div>
+</div>

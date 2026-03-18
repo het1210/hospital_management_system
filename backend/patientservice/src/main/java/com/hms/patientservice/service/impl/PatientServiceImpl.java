@@ -213,5 +213,15 @@ public class PatientServiceImpl implements PatientService {
                         .updatedAt(patient.getUpdatedAt())
                         .build());
     }
+
+    @Override
+    public Integer getPAtientCount(Integer hospitalId) {
+        if(hospitalId == 0){
+            Integer count = patientHospitalRepository.getPatientCountByHospital();
+            return count;
+        }
+        Integer count = patientHospitalRepository.getPatientCountByHospital(hospitalId);
+        return count;
+    }
 }
 

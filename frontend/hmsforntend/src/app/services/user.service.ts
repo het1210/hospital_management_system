@@ -49,4 +49,10 @@ export class UserService {
       .set('hospitalId', hospitalId);
     return this.http.get<any>(`${this.apiUrl}/search`, { params });
   }
+
+  count(hospitalId:number):Observable<any>{
+    const params = new HttpParams()
+      .set('id', hospitalId);
+    return this.http.get<any>(`${this.apiUrl}/count`,{params});
+  }
 }

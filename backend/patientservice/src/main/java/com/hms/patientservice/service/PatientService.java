@@ -16,4 +16,6 @@ public interface PatientService {
     void deletePatient(Integer id, HttpServletRequest request);
 
     Page<PatientDto> searchPatients(String query,Integer hospitalId, Pageable pageable);
+
+    Integer getPAtientCount(Integer hospitalId);
 }

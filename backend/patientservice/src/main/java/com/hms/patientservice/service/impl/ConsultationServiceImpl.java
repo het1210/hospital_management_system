@@ -60,6 +60,7 @@ public class ConsultationServiceImpl implements ConsultationService {
 
         if(consultationRequestDto.isCloseEpisode()){
                 Episode episode = encounter.getEpisode();
+                episode.setStatus(Episode.EpisodeStatus.CLOSED);
                 episode.setEndDate(LocalDateTime.now());
                 episode.setUpdatedAt(LocalDateTime.now());
                 episode.setUpdatedBy(consultationRequestDto.getDoctor());

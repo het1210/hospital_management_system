@@ -92,7 +92,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/role/{role}/today")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN','FRONTDESK','DOCTOR')")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'SUPER_ADMIN','FRONTDESK','DOCTOR')")
     public ResponseEntity<ApiResponse<?>> getCountTodayAppointment(@PathVariable("role") String role,@RequestParam("from") String from,@RequestParam("to") String to,HttpServletRequest request){
         try{
             log.info("Request to get appointment for today");

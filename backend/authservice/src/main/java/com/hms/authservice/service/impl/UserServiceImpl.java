@@ -9,15 +9,14 @@ import com.hms.authservice.feignclient.HospitalFeignClient;
 import com.hms.authservice.repository.RoleRepository;
 import com.hms.authservice.repository.UsersRepository;
 import com.hms.authservice.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -159,6 +158,32 @@ public class UserServiceImpl implements UserService {
                         .firstName(user.getFirstName())
                         .lastName(user.getLastName()).build()
         ).collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Integer> getUserCount(Integer hospitalId) {
+
+        Map<String, Integer> response = new HashMap<>();
+        System.out.println(hospitalId == 0);
+        if(hospitalId == 0){
+            System.out.println("IN USER SERVICE");
+            Integer totalUser =  usersRepository.getTotalUSer();
+            Integer totalDoctor = usersRepository.getTotalDoctorUSer();
+            Integer totalNurse =  usersRepository.getTotalNurse();
+            response.put("totalUser", totalUser);
+            response.put("totalDoctor",totalDoctor);
+            response.put("totalNurse", totalNurse);
+            return response;
+        }
+
+
+        Integer totalUser =  usersRepository.getTotalUSer(hospitalId);
+        Integer totalDoctor = usersRepository.getTotalDoctorUSer(hospitalId);
+        Integer totalNurse =  usersRepository.getTotalNurse(hospitalId);
+        response.put("totalUser", totalUser);
+        response.put("totalDoctor",totalDoctor);
+        response.put("totalNurse", totalNurse);
+        return response;
     }
 
 //    @Override

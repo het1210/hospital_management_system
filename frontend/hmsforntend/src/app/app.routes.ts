@@ -10,6 +10,7 @@ import { AppointmentsComponent } from './pages/appointments/appointments';
 import { EpisodesComponent } from './pages/episodes/episodes.component';
 import { ConsultationsPage } from './pages/consultations/consultations';
 import { ViewEpisodeDetails } from './pages/view-episode-details/view-episode-details';
+import { Notfound } from './components/notfound/notfound';
 
 export const routes: Routes = [
     {
@@ -63,6 +64,6 @@ export const routes: Routes = [
     },
     {
         path: '**',
-        redirectTo: ''
+        component: Notfound
     }
 ];

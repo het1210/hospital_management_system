@@ -8,6 +8,7 @@ interface MenuItem {
   label: string;
   icon: string;
   route: string;
+  isDiabled?: boolean;
 }
 
 @Component({
@@ -39,7 +40,7 @@ export class Sidemenu implements OnInit {
     ],
     hospitaladmin: [
       { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-      { label: 'Departments', icon: 'departments', route: '/departments' },
+      { label: 'Departments', icon: 'departments', route: '/departments' , isDiabled:true},
       { label: 'Users', icon: 'users', route: '/users' },
       // { label: 'Doctors', icon: 'doctor', route: '/doctors' },
       // { label: 'Staff', icon: 'staff', route: '/staff' },

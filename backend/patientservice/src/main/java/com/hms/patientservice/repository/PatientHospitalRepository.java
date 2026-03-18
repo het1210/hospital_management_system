@@ -2,6 +2,8 @@ package com.hms.patientservice.repository;
 
 import com.hms.patientservice.entity.PatientHospital;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,4 +15,10 @@ public interface PatientHospitalRepository extends JpaRepository<PatientHospital
     List<PatientHospital> findByPatientId(Integer id);
 
     PatientHospital findByPatientIdAndHospitalId(Integer patientId, Integer hospitalId);
+
+    @Query("SELECT COUNT(DISTINCT p.patientId) FROM PatientHospital p WHERE p.hospitalId = :hospitalId")
+    Integer getPatientCountByHospital(@Param("hospitalId") Integer hospitalId);
+
+    @Query("SELECT COUNT(DISTINCT p.patientId) FROM PatientHospital p")
+    Integer getPatientCountByHospital();
 }

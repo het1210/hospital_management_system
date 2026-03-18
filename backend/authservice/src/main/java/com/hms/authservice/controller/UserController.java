@@ -5,6 +5,7 @@ import com.hms.authservice.dto.RegisterRequest;
 import com.hms.authservice.dto.UserDto;
 import com.hms.authservice.service.AuthService;
 import com.hms.authservice.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
@@ -17,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -119,14 +121,26 @@ public class UserController {
             log.info("Request to search with query: " + query + " in hospital: " + hospitalId);
 //            Page<UserDto> userDtoPage = userService.searchDoctors(query, hospitalId, pageable);
                 List<UserDto> userDtoList = userService.search(query,hospitalId);
-                for(UserDto dto : userDtoList){
-                    System.out.println("DTODTO" + dto.getUserId());
-                }
             return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Doctors fetched successfully", userDtoList));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    @GetMapping("/count")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','HOSPITAL_ADMIN','FRONTDESK')")
+    public ResponseEntity<ApiResponse<?>> getUserCount(@RequestParam(value = "id", required = false) Integer hospitalId){
+        try{
+            log.info("Request to get User Count for Hospita : " + hospitalId);
+            Map<String,Integer> response = userService.getUserCount(hospitalId);
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("User Count fetched successfully", response));
+        }
+        catch (RuntimeException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

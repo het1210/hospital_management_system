@@ -93,4 +93,19 @@ public class PatientController {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
-    }}
+    }
+    @GetMapping("/count")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','HOSPITAL_ADMIN','DOCTOR','FRONTDESK')")
+    public ResponseEntity<ApiResponse<?>> getPatientCount(@RequestParam(value = "id", required = false) Integer hospitalId){
+        try{
+            log.info("Request to get Patient Count For hospital: " + hospitalId);
+            Integer count = patientService.getPAtientCount(hospitalId);
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Patients Count fetched successfully", count));
+        }
+        catch (RuntimeException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+}

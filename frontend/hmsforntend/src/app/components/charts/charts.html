@@ -1,0 +1,112 @@
+<!-- Charts -->
+<div class="chart-section" *ngIf="userRole === 'doctor' || userRole === 'frontdesk' ">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>Appointment Breakdown</h2>
+      <p class="chart-subtitle">Appointment status overview</p>
+    </div>
+    <div class="date-filter">
+      <div class="date-field">
+        <label>From</label>
+        <input type="date" [(ngModel)]="dateFrom" (change)="onDateFilter()" />
+      </div>
+      <span class="date-sep">→</span>
+      <div class="date-field">
+        <label>To</label>
+        <input type="date" [(ngModel)]="dateTo" (change)="onDateFilter()" />
+      </div>
+      <button class="clear-btn" (click)="clearDateFilter()" *ngIf="dateFrom || dateTo">Clear</button>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill" *ngFor="let m of appointmentMetrics">
+        <span class="pill-dot" [style.background]="m.color"></span>
+        <span class="pill-label">{{ m.label }}</span>
+        <span class="pill-value">{{ m.value }}</span>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-container">
+        <canvas id="appointmentDoughnut"></canvas>
+      </div>
+      <div class="chart-container bar-container">
+        <canvas id="appointmentBar"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Charts Ends -->
+
+
+<!-- Hospital admin chart -->
+<!-- Hospital Admin Staff Chart -->
+<div class="chart-section" *ngIf="userRole === 'hospitaladmin'">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>Staff Breakdown</h2>
+      <p class="chart-subtitle">Distribution of hospital staff by role</p>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill">
+        <span class="pill-dot" style="background: #667eea"></span>
+        <span class="pill-label">Total Staff</span>
+        <span class="pill-value">{{ userCount.totalUser }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="pill-dot" style="background: #4299e1"></span>
+        <span class="pill-label">Doctors</span>
+        <span class="pill-value">{{ userCount.totalDoctor }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="pill-dot" style="background: #10b981"></span>
+        <span class="pill-label">Nurses</span>
+        <span class="pill-value">{{ userCount.totalNurse }}</span>
+      </div>
+    </div>
+    <div class="charts-row staff-charts-row">
+      <div class="chart-container staff-pie-container">
+        <canvas id="staffPie"></canvas>
+      </div>
+      <div class="staff-legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #4299e1"></div>
+          <div class="legend-info">
+            <span class="legend-label">Doctors</span>
+            <span class="legend-value">{{ userCount.totalDoctor }}</span>
+          </div>
+          <span class="legend-pct">
+            {{ userCount.totalUser > 0 ? ((userCount.totalDoctor / userCount.totalUser) * 100 | number:'1.0-0') : 0 }}%
+          </span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #10b981"></div>
+          <div class="legend-info">
+            <span class="legend-label">Nurses</span>
+            <span class="legend-value">{{ userCount.totalNurse }}</span>
+          </div>
+          <span class="legend-pct">
+            {{ userCount.totalUser > 0 ? ((userCount.totalNurse / userCount.totalUser) * 100 | number:'1.0-0') : 0 }}%
+          </span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #f59e0b"></div>
+          <div class="legend-info">
+            <span class="legend-label">Other Staff</span>
+            <span class="legend-value">{{ userCount.totalUser - userCount.totalDoctor - userCount.totalNurse }}</span>
+          </div>
+          <span class="legend-pct">
+            {{ userCount.totalUser > 0 ? (((userCount.totalUser - userCount.totalDoctor - userCount.totalNurse) / userCount.totalUser) * 100 | number:'1.0-0') : 0 }}%
+          </span>
+        </div>
+        <div class="legend-total">
+          <span class="legend-total-label">Total</span>
+          <span class="legend-total-value">{{ userCount.totalUser }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
+<!-- Hospital admin chart end -->

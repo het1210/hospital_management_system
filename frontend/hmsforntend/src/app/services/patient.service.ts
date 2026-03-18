@@ -45,4 +45,8 @@ export class PatientService {
     return this.http.get<PageableResponse<Patient>>(`${this.apiUrl}/search`, { params });
   }
 
+  count(hospitalId: number): Observable<any> {
+    const params = new HttpParams().set('id', hospitalId.toString());
+    return this.http.get(`${this.apiUrl}/count`, { params });
+  }
 }

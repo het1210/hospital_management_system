@@ -13,6 +13,9 @@ import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { single } from 'rxjs';
+import { PatientService } from '../../services/patient.service';
+import { UserService } from '../../services/user.service';
+import { Charts } from '../../components/charts/charts';
 
 interface StatCard {
   title: string;
@@ -23,7 +26,7 @@ interface StatCard {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FullCalendarModule, FormsModule],
+  imports: [CommonModule, FullCalendarModule, FormsModule, Charts],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -33,31 +36,29 @@ export class Dashboard implements OnInit {
   userId: number = 0;
   welcomeMessage: string = '';
   hospitalCount: number = 0;
+  patientCount: number = 0;
+  userCount: { 'totalUser': number, 'totalDoctor': number, totalNurse: number } = { 'totalUser': 0, 'totalDoctor': 0, 'totalNurse': 0 }
   activeHospitals: number = 0;
+  hospitaId: string | null = localStorage.getItem('hospital_id') || '0'
   appointments: Appointment[] = [];
-  appointmentState:{totalAppointment:number,bookedAppointment:number,checkedInAppointment:number,completedAppointment:number, cancelledAppointment:number}
-  ={
-    totalAppointment:0,
-    bookedAppointment:0,
-    checkedInAppointment:0,
-    completedAppointment:0,
-    cancelledAppointment:0
-  }
-  appointmentStatForToday:{totalAppointment:number,bookedAppointment:number,checkedInAppointment:number,completedAppointment:number,cancelledAppointmet:number}
-  ={
-    totalAppointment:0,
-    bookedAppointment:0,
-    checkedInAppointment:0,
-    completedAppointment:0,
-    cancelledAppointmet:0
-  }
+  appointmentState: { totalAppointment: number, bookedAppointment: number, checkedInAppointment: number, completedAppointment: number, cancelledAppointment: number }
+    = {
+      totalAppointment: 0,
+      bookedAppointment: 0,
+      checkedInAppointment: 0,
+      completedAppointment: 0,
+      cancelledAppointment: 0
+    }
+  appointmentStatForToday: { totalAppointment: number, bookedAppointment: number, checkedInAppointment: number, completedAppointment: number, cancelledAppointment: number }
+    = {
+      totalAppointment: 0,
+      bookedAppointment: 0,
+      checkedInAppointment: 0,
+      completedAppointment: 0,
+      cancelledAppointment: 0
+    }
   isShowCalendar: boolean = false;
 
-  // Appointment chart
-  appointmentMetrics: { label: string; value: number; color: string }[] = [];
-  private chartsInitialized = false;
-  dateFrom: string = new Date().toISOString().split('T')[0];
-  dateTo: string = new Date().toISOString().split('T')[0];
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -98,6 +99,8 @@ export class Dashboard implements OnInit {
   constructor(
     private authService: AuthService,
     private hospitalService: HospitalService,
+    private patientService: PatientService,
+    private userSerivce: UserService,
     private appointmentService: AppointmentService,
     private cdRef: ChangeDetectorRef,
     private router: Router,
@@ -108,18 +111,23 @@ export class Dashboard implements OnInit {
     this.userRole = this.authService.getRole() || '';
     this.userId = parseInt(localStorage.getItem('user_id') || '0');
     if (this.userRole === 'superadmin') {
+      this.loadPatientCount(null);
+      // this.loadUserCount(null);
+  
       this.getHospitalCount();
-    } else {
-      this.loadDashboardData();
+    }
+    if (this.userRole === 'hospitaladmin') {
+      this.loadPatientCount(this.hospitaId);
+     
+      // this.loadDashboardData();
     }
 
     if (this.userRole === 'doctor') {
-      this.loadCountOfAppointments("doctor", this.dateFrom,this.dateTo);
-      this.loadCountOfAppointmentsForToday("doctor",new Date().toISOString().split('T')[0],new Date().toISOString().split('T')[0]);
+      this.loadPatientCount(this.hospitaId);
     }
-    else if (this.userRole === 'frontdesk') {
-      this.loadCountOfAppointments("frontdesk", this.dateFrom,this.dateTo);
-      this.loadCountOfAppointmentsForToday("frontdesk",new Date().toISOString().split('T')[0],new Date().toISOString().split('T')[0]);
+    if (this.userRole === 'frontdesk') {
+      this.loadPatientCount(this.hospitaId);
+    
     }
   }
 
@@ -131,25 +139,26 @@ export class Dashboard implements OnInit {
         this.stats = [
           { title: 'Total Hospitals', value: this.hospitalCount, icon: '🏥', color: '#667eea' },
           { title: 'Active Hospitals', value: this.activeHospitals, icon: '✅', color: '#48bb78' },
-          { title: 'Total Users', value: 1250, icon: '👥', color: '#4299e1' },
-          { title: 'Active Users (24h)', value: 856, icon: '🟢', color: '#38b2ac' },
-          { title: 'Total Patients', value: 8450, icon: '🤒', color: '#ed8936' },
-          { title: 'Appointments Today', value: 234, icon: '📅', color: '#9f7aea' },
-          { title: 'Revenue (Month)', value: '$125,450', icon: '💰', color: '#48bb78' },
-          { title: 'System Health', value: '98%', icon: '⚡', color: '#38b2ac' }
+          { title: 'Total Users', value: this.userCount.totalUser, icon: '👥', color: '#4299e1' },
+          { title: 'Total Doctors', value: this.userCount.totalDoctor, icon: '🟢', color: '#38b2ac' },
+          { title: 'Total Patients', value: this.patientCount, icon: '🤒', color: '#ed8936' },
+          { title: 'Appointments Today', value: this.appointmentStatForToday.totalAppointment, icon: '📅', color: '#9f7aea' },
+          // { title: 'Revenue (Month)', value: '$125,450', icon: '💰', color: '#48bb78' },
+          // { title: 'System Health', value: '98%', icon: '⚡', color: '#38b2ac' }
         ];
         break;
       case 'hospitaladmin':
         this.welcomeMessage = 'Hospital Admin Dashboard';
         this.stats = [
-          { title: 'Total Departments', value: 12, icon: '🏢', color: '#667eea' },
-          { title: 'Total Doctors', value: 45, icon: '👨⚕️', color: '#4299e1' },
-          { title: 'Total Staff', value: 120, icon: '👔', color: '#9f7aea' },
-          { title: 'Total Patients', value: 1234, icon: '🤒', color: '#ed8936' },
-          { title: 'Appointments Today', value: 45, icon: '📅', color: '#48bb78' },
-          { title: 'Available Beds', value: 156, icon: '🛏️', color: '#38b2ac' },
-          { title: 'Revenue Today', value: '$8,450', icon: '💰', color: '#48bb78' },
-          { title: 'Pending Bills', value: 23, icon: '📋', color: '#f56565' }
+          // { title: 'Total Departments', value: 12, icon: '🏢', color: '#667eea' },
+          { title: 'Total Doctors', value: this.userCount.totalDoctor, icon: '👨⚕️', color: '#4299e1' },
+          { title: 'Total Nurse', value: this.userCount.totalNurse, icon: '👨⚕️', color: '#4299e1' },
+          { title: 'Total Staff', value: this.userCount.totalUser, icon: '👔', color: '#9f7aea' },
+          { title: 'Total Patients', value: this.patientCount, icon: '🤒', color: '#ed8936' },
+          { title: 'Appointments Today', value: this.appointmentStatForToday.totalAppointment, icon: '📅', color: '#48bb78' },
+          // { title: 'Available Beds', value: 156, icon: '🛏️', color: '#38b2ac' },
+          // { title: 'Revenue Today', value: '$8,450', icon: '💰', color: '#48bb78' },
+          // { title: 'Pending Bills', value: 23, icon: '📋', color: '#f56565' }
         ];
         break;
       case 'doctor':
@@ -241,59 +250,57 @@ export class Dashboard implements OnInit {
       }
     });
   }
-
-  loadCountOfAppointments(role: string, from:string,to:string) {
-    this.appointmentService.count(role,from,to).subscribe({
+  loadPatientCount(hospitalId: string | null) {
+    this.patientService.count(Number(hospitalId)).subscribe({
       next: (response) => {
-        this.appointmentState=response.data;
+        console.log(response);
+        this.patientCount = response.data;
+
         this.loadDashboardData();
-        this.toastService.success(response.message);
         this.cdRef.detectChanges();
-        this.buildAppointmentMetrics();
       },
       error: (error) => {
-        console.error('Error loading appointment count:', error);
+        console.error('Error loading patient count:', error);
       }
-    });
+    })
   }
-
-
-    loadCountOfAppointmentsForToday(role: string, from:string,to:string) {
-    this.appointmentService.count(role,from,to).subscribe({
-      next: (response) => {
-       this.appointmentStatForToday=response.data;
-       console.log(this.appointmentStatForToday);
-              
-        this.loadDashboardData();
-        this.toastService.success(response.message);
-        this.cdRef.detectChanges();
-        this.buildAppointmentMetrics();
-      },
-      error: (error) => {
-        console.error('Error loading appointment count:', error);
-      }
-    });
-  }
-
 
   onStatClick(state: any) {
     console.log(state);
-    if (this.userRole === "doctor") {
-      if (state.title === "Appointments Today") {
-        this.loadDoctorAppointments();
-        this.isShowCalendar = !this.isShowCalendar;
-        this.cdRef.detectChanges();
-      }
-      if (state.title === "My Patients") {
-        console.log(`Fetch Patients`);
+    switch (this.userRole) {
+      case "doctor":
+        if (state.title === "Appointments Today") {
+          this.loadDoctorAppointments();
+          this.isShowCalendar = !this.isShowCalendar;
+          this.cdRef.detectChanges();
+        }
+        if (state.title === "My Patients") {
+          console.log(`Fetch Patients`);
 
-      }
+        }
+        break;
+      case "frontdesk":
+        if (state.title === "Appointments Today") {
+          this.router.navigate(['/appointments'])
+        }
+        break;
+      case "superadmin":
+        if (state.title === "Total Hospitals" || state.title === "Active Hospitals") {
+          this.router.navigate(['/hospitals'])
+        }
+        if (state.title === "Total Users" || state.title === "Total Doctors") {
+          this.router.navigate(['/users'])
+        }
+        if (state.title === "Total Patients") {
+          this.router.navigate(['/patients'])
+        }
+        break;
+      default:
+        console.log("No User Role");
+        break;
+
     }
-    if (this.userRole === "frontdesk") {
-      if (state.title === "Appointments Today") {
-        this.router.navigate(['/appointments'])
-      }
-    }
+
 
   }
 
@@ -338,76 +345,17 @@ export class Dashboard implements OnInit {
     // You can add navigation or modal opening logic here
   }
 
-
-
-  //charts
-  buildAppointmentMetrics() {
-    this.appointmentMetrics = [
-      { label: 'Total', value: this.appointmentState.totalAppointment, color: '#3bf6be' },
-      { label: 'Booked', value: this.appointmentState.bookedAppointment, color: '#3b82f6' },
-      { label: 'Checked In', value: this.appointmentState.checkedInAppointment, color: '#10b981' },
-      { label: 'Completed', value: this.appointmentState.completedAppointment, color: '#6366f1' },
-      { label: 'Cancelled', value: this.appointmentState.cancelledAppointment, color: '#ef4444' }
-    ];
-    this.cdRef.detectChanges();
-    setTimeout(() => this.renderCharts(), 100);
+  //Chart Event Handlers
+  handleAppointmentValues(event : any){
+    this.appointmentState = event;
+    this.loadDashboardData();
   }
-
-  renderCharts() {
-    if (typeof (window as any).Chart === 'undefined') {
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
-      script.onload = () => this.drawCharts();
-      document.head.appendChild(script);
-    } else {
-      this.drawCharts();
-    }
+  handleAppointmentForToday(event:any){
+    this.appointmentStatForToday = event;  
+    this.loadDashboardData();
   }
-
-  drawCharts() {
-    const Chart = (window as any).Chart;
-    const labels = this.appointmentMetrics.map(m => m.label);
-    const values = this.appointmentMetrics.map(m => m.value);
-    const colors = this.appointmentMetrics.map(m => m.color);
-
-    // Destroy existing if re-rendering
-    const dCtx = (document.getElementById('appointmentDoughnut') as HTMLCanvasElement)?.getContext('2d');
-    const bCtx = (document.getElementById('appointmentBar') as HTMLCanvasElement)?.getContext('2d');
-    if (!dCtx || !bCtx) return;
-
-    Chart.getChart('appointmentDoughnut')?.destroy();
-    Chart.getChart('appointmentBar')?.destroy();
-
-    new Chart(dCtx, {
-      type: 'doughnut',
-      data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 3, borderColor: '#ffffff', hoverOffset: 6 }] },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        cutout: '70%',
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.label}: ${ctx.parsed}` } } }
-      }
-    });
-
-    new Chart(bCtx, {
-      type: 'bar',
-      data: { labels, datasets: [{ label: 'Appointments', data: values, backgroundColor: colors, borderRadius: 8, borderSkipped: false }] },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: '#718096', font: { size: 12 } } },
-          y: { grid: { color: '#f1f5f9' }, ticks: { color: '#718096', stepSize: 1, precision: 0 }, beginAtZero: true }
-        }
-      }
-    });
+  handleUserCount(event:any){
+    this.userCount = event;
+    this.loadDashboardData();
   }
- onDateFilter() {
-  if (this.dateFrom && this.dateTo) {
-    this.loadCountOfAppointments(this.userRole,this.dateFrom, this.dateTo);
-  }
-}
-
-clearDateFilter() {
-  this.loadCountOfAppointments(this.userRole,this.dateFrom,this.dateTo);
-}
 }
