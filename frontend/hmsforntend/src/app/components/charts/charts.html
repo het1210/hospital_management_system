@@ -1,5 +1,5 @@
 <!-- Charts -->
-<div class="chart-section" *ngIf="userRole === 'doctor' || userRole === 'frontdesk' ">
+<!-- <div class="chart-section" *ngIf="userRole === 'doctor' || userRole === 'frontdesk' ">
   <div class="chart-header">
     <div class="chart-title-block">
       <h2>Appointment Breakdown</h2>
@@ -35,13 +35,13 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 <!-- Charts Ends -->
 
 
 <!-- Hospital admin chart -->
 <!-- Hospital Admin Staff Chart -->
-<div class="chart-section" *ngIf="userRole === 'hospitaladmin'">
+<!-- <div class="chart-section" *ngIf="userRole === 'hospitaladmin'">
   <div class="chart-header">
     <div class="chart-title-block">
       <h2>Staff Breakdown</h2>
@@ -108,5 +108,282 @@
       </div>
     </div>
   </div>
-</div> 
+</div>  -->
 <!-- Hospital admin chart end -->
+
+
+<!-- ══════════════════════════════════════════════════════
+     DOCTOR / FRONTDESK  —  Appointment Breakdown (date-filtered)
+     ══════════════════════════════════════════════════════ -->
+<div class="chart-section" *ngIf="userRole === 'doctor' || userRole === 'frontdesk'">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>Appointment Breakdown</h2>
+      <p class="chart-subtitle">Status overview for selected date range</p>
+    </div>
+    <div class="date-filter">
+      <div class="date-field">
+        <label>From</label>
+        <input type="date" [(ngModel)]="dateFrom" (change)="onDateFilter()" />
+      </div>
+      <span class="date-sep">→</span>
+      <div class="date-field">
+        <label>To</label>
+        <input type="date" [(ngModel)]="dateTo" (change)="onDateFilter()" />
+      </div>
+      <button class="clear-btn" (click)="clearDateFilter()" *ngIf="dateFrom || dateTo">Clear</button>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill" *ngFor="let m of appointmentMetrics">
+        <span class="pill-dot" [style.background]="m.color"></span>
+        <span class="pill-label">{{ m.label }}</span>
+        <span class="pill-value">{{ m.value }}</span>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-container">
+        <canvas id="appointmentDoughnut"></canvas>
+      </div>
+      <div class="chart-container bar-container">
+        <canvas id="appointmentBar"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     HOSPITAL ADMIN  —  Staff Distribution + Appointment Overview
+     ══════════════════════════════════════════════════════ -->
+<div class="chart-section" *ngIf="userRole === 'hospitaladmin'">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>Staff Distribution</h2>
+      <p class="chart-subtitle">Breakdown of hospital staff by role</p>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill">
+        <span class="pill-dot" style="background:#667eea"></span>
+        <span class="pill-label">Total Staff</span>
+        <span class="pill-value">{{ userCount.totalUser }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="pill-dot" style="background:#4299e1"></span>
+        <span class="pill-label">Doctors</span>
+        <span class="pill-value">{{ userCount.totalDoctor }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="pill-dot" style="background:#10b981"></span>
+        <span class="pill-label">Nurses</span>
+        <span class="pill-value">{{ userCount.totalNurse }}</span>
+      </div>
+    </div>
+    <div class="charts-row staff-charts-row">
+      <div class="chart-container staff-pie-container">
+        <canvas id="staffPie"></canvas>
+      </div>
+      <div class="staff-legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background:#4299e1"></div>
+          <div class="legend-info">
+            <span class="legend-label">Doctors</span>
+            <span class="legend-value">{{ userCount.totalDoctor }}</span>
+          </div>
+          <span class="legend-pct">
+            {{ userCount.totalUser > 0 ? ((userCount.totalDoctor / userCount.totalUser) * 100 | number:'1.0-0') : 0 }}%
+          </span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background:#10b981"></div>
+          <div class="legend-info">
+            <span class="legend-label">Nurses</span>
+            <span class="legend-value">{{ userCount.totalNurse }}</span>
+          </div>
+          <span class="legend-pct">
+            {{ userCount.totalUser > 0 ? ((userCount.totalNurse / userCount.totalUser) * 100 | number:'1.0-0') : 0 }}%
+          </span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background:#f59e0b"></div>
+          <div class="legend-info">
+            <span class="legend-label">Other Staff</span>
+            <span class="legend-value">{{ userCount.totalUser - userCount.totalDoctor - userCount.totalNurse }}</span>
+          </div>
+          <span class="legend-pct">
+            {{ userCount.totalUser > 0 ? (((userCount.totalUser - userCount.totalDoctor - userCount.totalNurse) / userCount.totalUser) * 100 | number:'1.0-0') : 0 }}%
+          </span>
+        </div>
+        <div class="legend-total">
+          <span class="legend-total-label">Total</span>
+          <span class="legend-total-value">{{ userCount.totalUser }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hospital Admin — Appointment Status Bar -->
+<div class="chart-section" *ngIf="userRole === 'hospitaladmin'">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>Today's Appointment Status</h2>
+      <p class="chart-subtitle">Live appointment pipeline overview</p>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill" *ngFor="let m of appointmentMetrics">
+        <span class="pill-dot" [style.background]="m.color"></span>
+        <span class="pill-label">{{ m.label }}</span>
+        <span class="pill-value">{{ m.value }}</span>
+      </div>
+    </div>
+    <div class="charts-row single-chart-row">
+      <div class="chart-container full-bar-container">
+        <canvas id="hospitalAdminAppointmentBar"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SUPER ADMIN  —  System-wide Overview
+     ══════════════════════════════════════════════════════ -->
+<div class="chart-section" *ngIf="userRole === 'superadmin'">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>System Overview</h2>
+      <p class="chart-subtitle">Users, hospitals, and appointments across all facilities</p>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill">
+        <span class="pill-dot" style="background:#667eea"></span>
+        <span class="pill-label">Total Users</span>
+        <span class="pill-value">{{ userCount.totalUser }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="pill-dot" style="background:#4299e1"></span>
+        <span class="pill-label">Doctors</span>
+        <span class="pill-value">{{ userCount.totalDoctor }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="pill-dot" style="background:#10b981"></span>
+        <span class="pill-label">Nurses</span>
+        <span class="pill-value">{{ userCount.totalNurse }}</span>
+      </div>
+    </div>
+    <div class="charts-row three-col-row">
+      <div class="chart-container"><canvas id="superAdminUserPie"></canvas></div>
+      <div class="chart-container"><canvas id="superAdminHospitalBar"></canvas></div>
+      <div class="chart-container"><canvas id="superAdminAppointmentLine"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     NURSE  —  Ward Overview + Vitals Trend
+     ══════════════════════════════════════════════════════ -->
+<div class="chart-section" *ngIf="userRole === 'nurse'">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>Ward Overview</h2>
+      <p class="chart-subtitle">Patient status, pending tasks and vital trends</p>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill"><span class="pill-dot" style="background:#667eea"></span><span class="pill-label">Assigned Patients</span><span class="pill-value">24</span></div>
+      <div class="metric-pill"><span class="pill-dot" style="background:#f56565"></span><span class="pill-label">Vitals Pending</span><span class="pill-value">8</span></div>
+      <div class="metric-pill"><span class="pill-dot" style="background:#ed8936"></span><span class="pill-label">Meds Due</span><span class="pill-value">12</span></div>
+      <div class="metric-pill"><span class="pill-dot" style="background:#38b2ac"></span><span class="pill-label">Ward Occupancy</span><span class="pill-value">85%</span></div>
+    </div>
+    <div class="charts-row two-col-row">
+      <div class="chart-container"><canvas id="nurseTasksBar"></canvas></div>
+      <div class="chart-container"><canvas id="nursePatientStatusDoughnut"></canvas></div>
+    </div>
+    <div class="charts-row single-chart-row" style="margin-top:24px">
+      <div class="chart-container full-bar-container"><canvas id="nurseVitalsTrend"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     LAB TECHNICIAN  —  Test Pipeline + TAT
+     ══════════════════════════════════════════════════════ -->
+<div class="chart-section" *ngIf="userRole === 'labtechnician'">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>Lab Test Overview</h2>
+      <p class="chart-subtitle">Daily test status, categories and turnaround time</p>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill"><span class="pill-dot" style="background:#667eea"></span><span class="pill-label">Pending</span><span class="pill-value">23</span></div>
+      <div class="metric-pill"><span class="pill-dot" style="background:#48bb78"></span><span class="pill-label">Completed</span><span class="pill-value">45</span></div>
+      <div class="metric-pill"><span class="pill-dot" style="background:#f56565"></span><span class="pill-label">Urgent</span><span class="pill-value">5</span></div>
+      <div class="metric-pill"><span class="pill-dot" style="background:#ed8936"></span><span class="pill-label">Reports Pending</span><span class="pill-value">8</span></div>
+    </div>
+    <div class="charts-row two-col-row">
+      <div class="chart-container"><canvas id="labTestStatusBar"></canvas></div>
+      <div class="chart-container"><canvas id="labTestCategoryPie"></canvas></div>
+    </div>
+    <div class="charts-row single-chart-row" style="margin-top:24px">
+      <div class="chart-container full-bar-container"><canvas id="labTurnaroundLine"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PHARMACIST  —  Prescriptions + Inventory + Top Meds
+     ══════════════════════════════════════════════════════ -->
+<div class="chart-section" *ngIf="userRole === 'pharmacist'">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>Pharmacy Overview</h2>
+      <p class="chart-subtitle">Prescriptions, dispensing, stock levels and top medicines</p>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill"><span class="pill-dot" style="background:#667eea"></span><span class="pill-label">Prescriptions</span><span class="pill-value">56</span></div>
+      <div class="metric-pill"><span class="pill-dot" style="background:#48bb78"></span><span class="pill-label">Dispensed</span><span class="pill-value">48</span></div>
+      <div class="metric-pill"><span class="pill-dot" style="background:#f56565"></span><span class="pill-label">Low Stock</span><span class="pill-value">12</span></div>
+    </div>
+    <div class="charts-row two-col-row">
+      <div class="chart-container"><canvas id="pharmacistPrescriptionBar"></canvas></div>
+      <div class="chart-container"><canvas id="pharmacistStockDoughnut"></canvas></div>
+    </div>
+    <div class="charts-row single-chart-row" style="margin-top:24px">
+      <div class="chart-container full-bar-container"><canvas id="pharmacistTopMeds"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PATIENT  —  My Health Summary
+     ══════════════════════════════════════════════════════ -->
+<div class="chart-section" *ngIf="userRole === 'patient'">
+  <div class="chart-header">
+    <div class="chart-title-block">
+      <h2>My Health Summary</h2>
+      <p class="chart-subtitle">Appointments, prescriptions, and overall health status</p>
+    </div>
+  </div>
+  <div class="chart-body">
+    <div class="chart-metrics">
+      <div class="metric-pill"><span class="pill-dot" style="background:#667eea"></span><span class="pill-label">Upcoming Appts</span><span class="pill-value">2</span></div>
+      <div class="metric-pill"><span class="pill-dot" style="background:#9f7aea"></span><span class="pill-label">Prescriptions</span><span class="pill-value">3</span></div>
+      <div class="metric-pill"><span class="pill-dot" style="background:#ed8936"></span><span class="pill-label">Pending Reports</span><span class="pill-value">1</span></div>
+    </div>
+    <div class="charts-row two-col-row">
+      <div class="chart-container"><canvas id="patientAppointmentHistory"></canvas></div>
+      <div class="chart-container"><canvas id="patientHealthDoughnut"></canvas></div>
+    </div>
+  </div>
+</div>

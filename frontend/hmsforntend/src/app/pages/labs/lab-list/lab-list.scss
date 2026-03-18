@@ -1,0 +1,286 @@
+// ── Variables ────────────────────────────────────────────────────────────────
+$surface:   #ffffff;
+$bg:        #f4f6fb;
+$border:    #e2e8f0;
+$text:      #1a202c;
+$muted:     #718096;
+$radius:    12px;
+$shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+$shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+
+.lab-list-page {
+  padding: 28px;
+  background: $bg;
+  min-height: 100vh;
+
+  @media (max-width: 768px) { padding: 16px; }
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: $text;
+    margin: 0 0 4px;
+    letter-spacing: -0.4px;
+  }
+
+  .subtitle { font-size: 13px; color: $muted; margin: 0; }
+}
+
+// ── Filters ───────────────────────────────────────────────────────────────────
+.filters-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    label {
+      font-size: 12px;
+      font-weight: 700;
+      color: $muted;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+  }
+
+  .status-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .status-filter-btn {
+    padding: 6px 14px;
+    border: 2px solid $border;
+    border-radius: 99px;
+    background: $surface;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: $muted;
+    transition: all 0.2s;
+
+    &.active {
+      border-color: var(--btn-color, #667eea);
+      background: color-mix(in srgb, var(--btn-color, #667eea) 12%, white);
+      color: var(--btn-color, #667eea);
+    }
+    &:hover:not(.active) { border-color: #cbd5e0; color: $text; }
+  }
+
+  .refresh-btn {
+    padding: 8px 16px;
+    border: 2px solid $border;
+    border-radius: 8px;
+    background: $surface;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: $muted;
+    transition: all 0.2s;
+    white-space: nowrap;
+    &:hover { border-color: #667eea; color: #667eea; }
+  }
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+.skeleton-rows { display: flex; flex-direction: column; gap: 10px; }
+.skeleton-row {
+  height: 60px;
+  border-radius: $radius;
+  background: linear-gradient(90deg, #e2e8f0 25%, #edf2f7 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+// ── Table card ────────────────────────────────────────────────────────────────
+.table-card {
+  background: $surface;
+  border-radius: $radius;
+  box-shadow: $shadow-sm;
+  border: 1px solid $border;
+  overflow: hidden;
+}
+
+.table-wrap { overflow-x: auto; }
+
+.lab-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  thead tr {
+    background: #f7fafc;
+    border-bottom: 2px solid $border;
+  }
+
+  th {
+    padding: 13px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+
+  .data-row {
+    transition: background 0.15s;
+    &:hover { background: #f7fafc; }
+    &:last-child td { border-bottom: none; }
+  }
+
+  .row-num { color: $muted; font-size: 13px; }
+
+  .order-id {
+    .id-badge {
+      font-weight: 700;
+      color: #667eea;
+      font-size: 13px;
+    }
+  }
+
+  .patient-cell .patient-name { font-weight: 600; color: $text; }
+
+  .tests-cell {
+    .test-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+
+      .test-tag {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        background: #eef2ff;
+        color: #667eea;
+        border-radius: 99px;
+
+        &.more { background: #f1f5f9; color: $muted; }
+      }
+    }
+  }
+
+  .priority-badge {
+    font-size: 12px;
+    font-weight: 600;
+    &.urgent { color: #ef4444; }
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1.5px solid;
+    white-space: nowrap;
+  }
+
+  .date-cell { color: $muted; font-size: 13px; white-space: nowrap; }
+
+  .actions-col { text-align: center; }
+  .actions-cell { white-space: nowrap; }
+}
+
+// ── Action buttons ────────────────────────────────────────────────────────────
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &.view-btn    { background: #eef2ff; color: #667eea; &:hover { background: #667eea; color: white; } }
+  &.book-btn    { background: #e0f2fe; color: #0284c7; &:hover { background: #0284c7; color: white; } }
+  &.collect-btn { background: #fef3c7; color: #d97706; &:hover { background: #d97706; color: white; } }
+  &.process-btn { background: #f3e8ff; color: #7c3aed; &:hover { background: #7c3aed; color: white; } }
+  &.results-btn { background: #dcfce7; color: #16a34a; &:hover { background: #16a34a; color: white; } }
+  &.report-btn  { background: #f0fdf4; color: #15803d; &:hover { background: #15803d; color: white; } }
+  &.cancel-btn  {
+    background: #fff1f2;
+    color: #ef4444;
+    font-size: 13px;
+    font-weight: 700;
+    width: 28px; height: 28px;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    &:hover { background: #ef4444; color: white; }
+  }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.empty-state { text-align: center; padding: 48px 16px !important; }
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  .empty-icon { font-size: 40px; }
+  p { font-size: 15px; font-weight: 600; color: $muted; margin: 0; }
+  small { color: #a0aec0; font-size: 13px; }
+}
+
+// ── Pagination ────────────────────────────────────────────────────────────────
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  border-top: 1px solid $border;
+
+  .page-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border: 2px solid $border;
+    border-radius: 8px;
+    background: $surface;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: $muted;
+    transition: all 0.2s;
+
+    &.active { background: #667eea; border-color: #667eea; color: white; }
+    &:hover:not(.active):not(:disabled) { border-color: #667eea; color: #667eea; }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+  }
+}

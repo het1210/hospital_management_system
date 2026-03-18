@@ -1,0 +1,204 @@
+// ── Variables ────────────────────────────────────────────────────────────────
+$text:    #1a202c;
+$muted:   #718096;
+$border:  #e2e8f0;
+$radius:  12px;
+
+// ── Page wrapper ─────────────────────────────────────────────────────────────
+.lab-report-page {
+  padding: 32px;
+  background: #f4f6fb;
+  min-height: 100vh;
+
+  @media print { padding: 0; background: white; }
+}
+
+// ── Screen actions ────────────────────────────────────────────────────────────
+.screen-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .back-btn {
+    background: none; border: none; cursor: pointer;
+    color: #667eea; font-size: 14px; font-weight: 600;
+    padding: 0;
+    &:hover { text-decoration: underline; }
+  }
+
+  .print-btn {
+    padding: 10px 22px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; border: none; border-radius: 9px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102,126,234,0.35);
+    transition: all 0.2s;
+    &:hover { transform: translateY(-1px); }
+  }
+}
+
+// ── Report document ───────────────────────────────────────────────────────────
+.report-document {
+  background: white;
+  border-radius: $radius;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  border: 1px solid $border;
+  padding: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+
+  @media print {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 20px;
+    max-width: 100%;
+  }
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  .hospital-info {
+    display: flex; align-items: center; gap: 16px;
+    .hospital-logo { font-size: 36px; }
+    .hospital-name { font-size: 20px; font-weight: 800; color: $text; margin: 0 0 3px; }
+    .hospital-sub  { font-size: 13px; color: $muted; margin: 0; }
+  }
+
+  .report-title-block {
+    text-align: right;
+    h2 { font-size: 18px; font-weight: 800; color: #667eea; letter-spacing: 1.5px; margin: 0 0 8px; }
+    .report-badges { display: flex; gap: 8px; justify-content: flex-end; }
+    .report-id-badge {
+      padding: 4px 12px; background: #eef2ff; color: #667eea;
+      border-radius: 99px; font-size: 12px; font-weight: 700;
+    }
+    .priority-badge {
+      padding: 4px 12px; background: #f0fdf4; color: #15803d;
+      border-radius: 99px; font-size: 12px; font-weight: 700;
+      &.urgent { background: #fff1f2; color: #ef4444; }
+    }
+  }
+}
+
+.report-divider { border: none; border-top: 2px solid $border; margin: 20px 0; }
+
+// ── Info section ──────────────────────────────────────────────────────────────
+.info-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 40px;
+  margin-bottom: 4px;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+
+  .info-row {
+    display: flex; gap: 8px; align-items: baseline; margin-bottom: 6px;
+    .info-label { font-size: 11px; font-weight: 700; color: $muted; text-transform: uppercase; letter-spacing: 0.5px; min-width: 110px; flex-shrink: 0; }
+    .info-val   { font-size: 13px; font-weight: 600; color: $text; &.mono { font-family: monospace; } }
+  }
+}
+
+// ── Section title ─────────────────────────────────────────────────────────────
+.section-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin: 0 0 14px;
+}
+
+// ── Results table ─────────────────────────────────────────────────────────────
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead tr { background: #f7fafc; border-bottom: 2px solid $border; }
+  th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: $muted; text-transform: uppercase; }
+  td { padding: 11px 12px; border-bottom: 1px solid #f1f5f9; }
+
+  .test-name  { font-weight: 600; color: $text; }
+  .test-code  { color: $muted; font-size: 11px; }
+  .result-val strong { font-size: 14px; font-weight: 800; }
+  .abnormal-val strong { color: #ef4444; }
+  .remarks    { color: $muted; font-size: 12px; }
+
+  .abnormal-row { background: #fff5f5 !important; }
+
+  .abnormal-flag { background: #fee2e2; color: #ef4444; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .normal-flag   { background: #dcfce7; color: #15803d; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+}
+
+// ── Sample section ────────────────────────────────────────────────────────────
+.sample-info-row { display: flex; gap: 40px; flex-wrap: wrap; }
+
+// ── Summary ───────────────────────────────────────────────────────────────────
+.summary-section {
+  .doctor-note, .tech-note {
+    font-size: 13px; color: #2d3748; line-height: 1.7; margin-bottom: 6px;
+  }
+}
+
+// ── Legend ────────────────────────────────────────────────────────────────────
+.legend {
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: #f7fafc;
+  border-radius: 8px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: $muted;
+
+  .legend-item { display: flex; align-items: center; gap: 7px; }
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+.report-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 2px solid $border;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  .footer-sig {
+    .sig-line { width: 160px; border-bottom: 2px solid $text; margin-bottom: 8px; }
+    p { font-size: 12px; color: $muted; margin: 2px 0; }
+  }
+
+  .footer-meta {
+    text-align: right;
+    p { font-size: 12px; color: $muted; margin: 2px 0; }
+    .footer-note { font-size: 11px; color: #a0aec0; font-style: italic; }
+  }
+}
+
+// ── Loading ───────────────────────────────────────────────────────────────────
+.loading-state { display:flex; align-items:center; justify-content:center; gap:12px; padding:60px;
+  .spinner { width:32px; height:32px; border:3px solid #e2e8f0; border-top-color:#667eea; border-radius:50%; animation:spin 0.8s linear infinite; }
+  p { color: $muted; }
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+// ── Print media ───────────────────────────────────────────────────────────────
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+  .report-document { padding: 16px; }
+  .results-table th, .results-table td { padding: 8px 10px; }
+  .report-footer { margin-top: 24px; }
+}

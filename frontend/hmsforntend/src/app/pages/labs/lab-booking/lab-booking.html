@@ -1,0 +1,76 @@
+<!-- ══════════════════════════════════════════
+     FILE: lab-booking.html
+══════════════════════════════════════════ -->
+<div class="lab-booking-page">
+  <div class="booking-card">
+
+    <!-- Header -->
+    <div class="card-header">
+      <button class="back-btn" (click)="goBack()">← Back</button>
+      <h1>📅 Book Lab Appointment</h1>
+      <p class="subtitle">Schedule a lab visit for Lab Order <strong>#{{ orderId }}</strong></p>
+    </div>
+
+    <!-- Order summary -->
+    <div class="order-summary" *ngIf="order">
+      <div class="summary-row">
+        <span class="summary-label">Patient</span>
+        <span>{{ order.patientName || 'Patient #' + order.patientId }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Tests</span>
+        <div class="test-chips">
+          <span *ngFor="let t of order.tests" class="chip">{{ t.testCode || t.testName }}</span>
+        </div>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Priority</span>
+        <span [class.urgent]="order.priority === 'URGENT'">{{ order.priority }}</span>
+      </div>
+    </div>
+
+    <!-- Booking form -->
+    <div class="booking-form">
+      <div class="form-group">
+        <label>Appointment Date *</label>
+        <input type="date" [(ngModel)]="appointmentDate" [min]="minDate">
+      </div>
+
+      <div class="time-row">
+        <div class="form-group">
+          <label>Start Time *</label>
+          <input type="time" [(ngModel)]="startTime">
+        </div>
+        <div class="form-group">
+          <label>End Time *</label>
+          <input type="time" [(ngModel)]="endTime">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Assign Lab Technician (optional)</label>
+        <input type="number" [(ngModel)]="labTechnicianId" placeholder="User ID of lab technician">
+      </div>
+
+      <!-- Validation note -->
+      <div class="info-note" *ngIf="order?.notes">
+        <span>📝</span> <em>Doctor's notes: {{ order.notes }}</em>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="goBack()" type="button">Cancel</button>
+        <button class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting || !appointmentDate">
+          <span *ngIf="!isSubmitting">📅 Confirm Booking</span>
+          <span *ngIf="isSubmitting">Booking...</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+/* ══════════════════════════════════════════
+   FILE: lab-booking.scss
+══════════════════════════════════════════ */

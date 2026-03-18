@@ -22,4 +22,20 @@ public class ConsultationRequestDto {
     private boolean closeEpisode;
 
     private List<PrescriptionDto> prescriptions;
+
+    // ── NEW: Lab Order fields ─────────────────────────────────────────────────
+    /** If true, a LabOrder will be created on consultation submit */
+    private boolean raiseLabOrder;
+
+    /** Tests selected by doctor (only relevant when raiseLabOrder = true) */
+    private List<LabTestItemDto> labTests;
+
+    /** "NORMAL" or "URGENT" */
+    private String labPriority;
+
+    /** Free-text notes for the lab */
+    private String labNotes;
+
+    /** Hospital context — needed to create the lab order */
+    private Integer hospitalId;
 }

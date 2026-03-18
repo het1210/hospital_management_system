@@ -1,0 +1,143 @@
+<!-- ══════════════════════════════════════════
+     FILE: lab-report.html
+     Designed to be printable (CSS @media print)
+══════════════════════════════════════════ -->
+<div class="lab-report-page">
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div><p>Loading report...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && order">
+
+    <!-- Screen-only actions -->
+    <div class="screen-actions no-print">
+      <button class="back-btn" (click)="goBack()">← Back to Order</button>
+      <button class="print-btn" (click)="printReport()">🖨️ Print / Save PDF</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PRINTABLE REPORT BODY
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="report-document" id="lab-report-printable">
+
+      <!-- Header -->
+      <div class="report-header">
+        <div class="hospital-info">
+          <div class="hospital-logo">🏥</div>
+          <div>
+            <h1 class="hospital-name">Hospital Management System</h1>
+            <p class="hospital-sub">Laboratory Department</p>
+          </div>
+        </div>
+        <div class="report-title-block">
+          <h2>LABORATORY REPORT</h2>
+          <div class="report-badges">
+            <span class="report-id-badge">Order #{{ order.id }}</span>
+            <span class="priority-badge" [class.urgent]="order.priority === 'URGENT'">
+              {{ order.priority }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-divider"></div>
+
+      <!-- Patient & Doctor info -->
+      <div class="info-section">
+        <div class="info-col">
+          <div class="info-row"><span class="info-label">Patient Name</span><span class="info-val">{{ order.patientName || 'Patient #' + order.patientId }}</span></div>
+          <div class="info-row"><span class="info-label">Patient ID</span><span class="info-val">#{{ order.patientId }}</span></div>
+          <div class="info-row" *ngIf="order.episodeId"><span class="info-label">Episode ID</span><span class="info-val">#{{ order.episodeId }}</span></div>
+        </div>
+        <div class="info-col">
+          <div class="info-row"><span class="info-label">Referring Doctor</span><span class="info-val">Dr. #{{ order.doctorId }}</span></div>
+          <div class="info-row"><span class="info-label">Report Date</span><span class="info-val">{{ order.report?.generatedAt | date:'dd MMM yyyy' }}</span></div>
+          <div class="info-row"><span class="info-label">Reported By</span><span class="info-val">Lab Tech #{{ order.report?.generatedBy }}</span></div>
+        </div>
+      </div>
+
+      <div class="report-divider"></div>
+
+      <!-- Tests & Results Table -->
+      <div class="results-section">
+        <h3 class="section-title">TEST RESULTS</h3>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Test Name</th>
+              <th>Code</th>
+              <th>Result</th>
+              <th>Unit</th>
+              <th>Reference Range</th>
+              <th>Flag</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let test of order.tests" [class.abnormal-row]="isAbnormal(test)">
+              <td class="test-name">{{ test.testName }}</td>
+              <td class="test-code">{{ test.testCode || '—' }}</td>
+              <td class="result-val" [class.abnormal-val]="isAbnormal(test)">
+                <strong>{{ test.resultValue || '—' }}</strong>
+              </td>
+              <td>{{ test.unit || '—' }}</td>
+              <td>{{ test.referenceRange || '—' }}</td>
+              <td>
+                <span *ngIf="isAbnormal(test)" class="abnormal-flag">⚠ H/L</span>
+                <span *ngIf="!isAbnormal(test) && test.resultValue" class="normal-flag">✓ N</span>
+                <span *ngIf="!test.resultValue">—</span>
+              </td>
+              <td class="remarks">{{ test.remarks || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Sample Info -->
+      <div class="sample-section" *ngIf="order.sample">
+        <div class="report-divider"></div>
+        <h3 class="section-title">SAMPLE INFORMATION</h3>
+        <div class="sample-info-row">
+          <div class="info-row"><span class="info-label">Sample Type</span><span class="info-val">{{ order.sample.sampleType }}</span></div>
+          <div class="info-row"><span class="info-label">Barcode</span><span class="info-val mono">{{ order.sample.barcode }}</span></div>
+          <div class="info-row"><span class="info-label">Collected</span><span class="info-val">{{ order.sample.collectedAt | date:'dd MMM yyyy, h:mm a' }}</span></div>
+        </div>
+      </div>
+
+      <!-- Notes / Summary -->
+      <ng-container *ngIf="order.report?.summary || order.notes">
+        <div class="report-divider"></div>
+        <div class="summary-section">
+          <h3 class="section-title">NOTES & INTERPRETATION</h3>
+          <p *ngIf="order.notes" class="doctor-note"><strong>Doctor's Notes:</strong> {{ order.notes }}</p>
+          <p *ngIf="order.report?.summary" class="tech-note"><strong>Technician Summary:</strong> {{ order.report!.summary }}</p>
+        </div>
+      </ng-container>
+
+      <!-- Legend -->
+      <div class="legend">
+        <span class="legend-item"><span class="abnormal-flag">⚠ H/L</span> = Abnormal (High/Low)</span>
+        <span class="legend-item"><span class="normal-flag">✓ N</span> = Within Normal Range</span>
+      </div>
+
+      <!-- Footer -->
+      <div class="report-footer">
+        <div class="footer-sig">
+          <div class="sig-line"></div>
+          <p>Authorized Signatory</p>
+          <p>Lab Technician #{{ order.report?.generatedBy }}</p>
+        </div>
+        <div class="footer-meta">
+          <p>Report generated: {{ today | date:'dd MMM yyyy, h:mm a' }}</p>
+          <p class="footer-note">This is a computer-generated report.</p>
+          <p class="footer-note">HMS Lab Module — Confidential Patient Record</p>
+        </div>
+      </div>
+
+    </div><!-- /report-document -->
+
+  </ng-container>
+
+</div>

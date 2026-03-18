@@ -89,6 +89,18 @@ spring:
                 - Path=/api/consultations/**
               filters:
                 - name: JwtAuthenticationFilter
+            - id: dashboard-service   # Dashboard analytics — routed to patient-service
+              uri: lb://patient-service
+              predicates:
+                - Path=/api/dashboard/**
+              filters:
+                - name: JwtAuthenticationFilter
+            - id: lab-order-service        # Lab Order Module → patient-service
+              uri: lb://patient-service
+              predicates:
+                - Path=/api/lab-orders/**
+              filters:
+                - name: JwtAuthenticationFilter
 
 
 eureka:

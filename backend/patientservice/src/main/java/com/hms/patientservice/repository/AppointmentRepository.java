@@ -10,10 +10,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
+
+    // ── Existing queries (keep all existing ones) ─────────────────────
 
     @Query("SELECT a FROM Appointment a WHERE a.hospitalId = :hospitalId")
     Page<Appointment> findAllByHospitalId(Integer hospitalId, Pageable pageable);
@@ -46,21 +47,109 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
     @Query("SELECT a FROM Appointment a WHERE a.hospitalId = :hospitalId AND a.appointmentStart >= :from AND a.appointmentEnd <= :to")
     Page<Appointment> findAllByHospitalIdInDateRange(Integer hospitalId, Pageable pageable, LocalDateTime from, LocalDateTime to);
 
-    //Fetch Todays Appointments for Doctor
+    // Existing count queries
     @Query("SELECT COUNT(a.id) FROM Appointment a WHERE a.doctorId = :userId AND a.appointmentStart >= :dateTimeStart AND a.appointmentEnd <= :dateTimeEnd")
-    Integer getAppointmentCount(@Param("userId") Integer userId,@Param("dateTimeStart") LocalDateTime dateTimeStart,@Param("dateTimeEnd") LocalDateTime dateTimeEnd);
-
+    Integer getAppointmentCount(@Param("userId") Integer userId, @Param("dateTimeStart") LocalDateTime dateTimeStart, @Param("dateTimeEnd") LocalDateTime dateTimeEnd);
 
     @Query("SELECT COUNT(a.id) FROM Appointment a WHERE a.doctorId = :userId AND a.status=:status AND a.appointmentStart >= :dateTimeStart AND a.appointmentEnd <= :dateTimeEnd")
-    Integer getAppointmentCount(@Param("userId") Integer userId,@Param("status") Appointment.AppointmentStatus status,@Param("dateTimeStart") LocalDateTime dateTimeStart,@Param("dateTimeEnd") LocalDateTime dateTimeEnd);
+    Integer getAppointmentCount(@Param("userId") Integer userId, @Param("status") Appointment.AppointmentStatus status, @Param("dateTimeStart") LocalDateTime dateTimeStart, @Param("dateTimeEnd") LocalDateTime dateTimeEnd);
 
-    //Fetch Todays Appointments for FrontDesk
     @Query("SELECT COUNT(a.id) FROM Appointment a WHERE a.appointmentStart >= :dateTimeStart AND a.appointmentEnd <= :dateTimeEnd")
-    Integer getAppointmentCount(@Param("dateTimeStart") LocalDateTime dateTimeStart,@Param("dateTimeEnd") LocalDateTime dateTimeEnd);
+    Integer getAppointmentCount(@Param("dateTimeStart") LocalDateTime dateTimeStart, @Param("dateTimeEnd") LocalDateTime dateTimeEnd);
 
     @Query("SELECT COUNT(a.id) FROM Appointment a WHERE a.status=:status AND a.appointmentStart >= :dateTimeStart AND a.appointmentEnd <= :dateTimeEnd")
-    Integer getAppointmentCount(@Param("status") Appointment.AppointmentStatus status,@Param("dateTimeStart") LocalDateTime dateTimeStart,@Param("dateTimeEnd") LocalDateTime dateTimeEnd);
+    Integer getAppointmentCount(@Param("status") Appointment.AppointmentStatus status, @Param("dateTimeStart") LocalDateTime dateTimeStart, @Param("dateTimeEnd") LocalDateTime dateTimeEnd);
 
-//    @Query("SELECT a FROM Appointment a WHERE a.doctorId = :doctorId AND a.appointmentStart >= :to AND a.appointmentEnd <= :from ")
-//    List<Appointment> findAllByDoctorIdInDateRange(Integer doctorId, LocalDateTime to, LocalDateTime from);
+    // ── NEW: Dashboard analytics queries ──────────────────────────────
+
+    /** Weekly trend for a specific doctor — count per day-of-week */
+    @Query("SELECT FUNCTION('DAYNAME', a.appointmentStart), COUNT(a.id) " +
+            "FROM Appointment a " +
+            "WHERE a.doctorId = :doctorId AND a.appointmentStart >= :from AND a.appointmentStart <= :to " +
+            "GROUP BY FUNCTION('DAYNAME', a.appointmentStart)")
+    List<Object[]> getWeeklyTrendByDoctor(@Param("doctorId") Integer doctorId,
+                                          @Param("from") LocalDateTime from,
+                                          @Param("to") LocalDateTime to);
+
+    /** Weekly trend for a hospital */
+    @Query("SELECT FUNCTION('DAYNAME', a.appointmentStart), COUNT(a.id) " +
+            "FROM Appointment a " +
+            "WHERE a.hospitalId = :hospitalId AND a.appointmentStart >= :from AND a.appointmentStart <= :to " +
+            "GROUP BY FUNCTION('DAYNAME', a.appointmentStart)")
+    List<Object[]> getWeeklyTrendByHospital(@Param("hospitalId") Integer hospitalId,
+                                            @Param("from") LocalDateTime from,
+                                            @Param("to") LocalDateTime to);
+
+    /** Weekly trend — all hospitals (superadmin) */
+    @Query("SELECT FUNCTION('DAYNAME', a.appointmentStart), COUNT(a.id) " +
+            "FROM Appointment a " +
+            "WHERE a.appointmentStart >= :from AND a.appointmentStart <= :to " +
+            "GROUP BY FUNCTION('DAYNAME', a.appointmentStart)")
+    List<Object[]> getWeeklyTrendAll(@Param("from") LocalDateTime from,
+                                     @Param("to") LocalDateTime to);
+
+    /** Monthly trend (last 6 months) for a hospital */
+    @Query("SELECT FUNCTION('MONTH', a.appointmentStart), COUNT(a.id) " +
+            "FROM Appointment a " +
+            "WHERE a.hospitalId = :hospitalId AND a.appointmentStart >= :from " +
+            "GROUP BY FUNCTION('MONTH', a.appointmentStart) " +
+            "ORDER BY FUNCTION('MONTH', a.appointmentStart)")
+    List<Object[]> getMonthlyTrendByHospital(@Param("hospitalId") Integer hospitalId,
+                                             @Param("from") LocalDateTime from);
+
+    /** Monthly trend — all hospitals */
+    @Query("SELECT FUNCTION('MONTH', a.appointmentStart), COUNT(a.id) " +
+            "FROM Appointment a " +
+            "WHERE a.appointmentStart >= :from " +
+            "GROUP BY FUNCTION('MONTH', a.appointmentStart) " +
+            "ORDER BY FUNCTION('MONTH', a.appointmentStart)")
+    List<Object[]> getMonthlyTrendAll(@Param("from") LocalDateTime from);
+
+    /** Monthly trend for a doctor */
+    @Query("SELECT FUNCTION('MONTH', a.appointmentStart), COUNT(a.id) " +
+            "FROM Appointment a " +
+            "WHERE a.doctorId = :doctorId AND a.appointmentStart >= :from " +
+            "GROUP BY FUNCTION('MONTH', a.appointmentStart)")
+    List<Object[]> getMonthlyTrendByDoctor(@Param("doctorId") Integer doctorId,
+                                           @Param("from") LocalDateTime from);
+
+    /** Hourly distribution for today */
+    @Query("SELECT FUNCTION('HOUR', a.appointmentStart), COUNT(a.id) " +
+            "FROM Appointment a " +
+            "WHERE a.hospitalId = :hospitalId AND a.appointmentStart >= :from AND a.appointmentStart <= :to " +
+            "GROUP BY FUNCTION('HOUR', a.appointmentStart)")
+    List<Object[]> getHourlyDistributionByHospital(@Param("hospitalId") Integer hospitalId,
+                                                   @Param("from") LocalDateTime from,
+                                                   @Param("to") LocalDateTime to);
+
+    /** Hourly distribution for doctor today */
+    @Query("SELECT FUNCTION('HOUR', a.appointmentStart), COUNT(a.id) " +
+            "FROM Appointment a " +
+            "WHERE a.doctorId = :doctorId AND a.appointmentStart >= :from AND a.appointmentStart <= :to " +
+            "GROUP BY FUNCTION('HOUR', a.appointmentStart)")
+    List<Object[]> getHourlyDistributionByDoctor(@Param("doctorId") Integer doctorId,
+                                                 @Param("from") LocalDateTime from,
+                                                 @Param("to") LocalDateTime to);
+
+    /** Distinct patient count for a doctor */
+    @Query("SELECT COUNT(DISTINCT a.patientId) FROM Appointment a WHERE a.doctorId = :doctorId")
+    Integer getDistinctPatientCountByDoctor(@Param("doctorId") Integer doctorId);
+
+    /** Upcoming appointments for a doctor */
+    @Query("SELECT COUNT(a.id) FROM Appointment a WHERE a.doctorId = :doctorId AND a.appointmentStart > :now AND a.status != 'CANCELLED'")
+    Integer getUpcomingAppointmentCountByDoctor(@Param("doctorId") Integer doctorId,
+                                                @Param("now") LocalDateTime now);
+
+    /** Today's consultations for a doctor */
+    @Query("SELECT COUNT(c.id) FROM Consultation c WHERE c.doctorId = :doctorId AND c.encounter.startTime >= :from AND c.encounter.startTime <= :to")
+    Integer getTodaysConsultationsForDoctor(@Param("doctorId") Integer doctorId,
+                                            @Param("from") LocalDateTime from,
+                                            @Param("to") LocalDateTime to);
+
+    /** Recent appointments for activity feed */
+    @Query("SELECT a FROM Appointment a WHERE a.hospitalId = :hospitalId ORDER BY a.createdAt DESC")
+    List<Appointment> findRecentByHospital(@Param("hospitalId") Integer hospitalId, Pageable pageable);
+
+    @Query("SELECT a FROM Appointment a WHERE a.doctorId = :doctorId ORDER BY a.createdAt DESC")
+    List<Appointment> findRecentByDoctor(@Param("doctorId") Integer doctorId, Pageable pageable);
 }

@@ -1,387 +1,305 @@
-.consultation-form {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 1000px;
-  margin: 0 auto;
-//check box
-  .close-episode-section {
-  margin-bottom: 0;
+/* ─────────────────────────────────────────────────────────────────────────
+   APPEND these styles to existing consultation-form.scss
+   ───────────────────────────────────────────────────────────────────────── */
 
-  .close-episode-toggle {
+// ── Lab Order Section ───────────────────────────────────────────────────────
+.lab-order-section {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 2px solid #bae6fd;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.lab-order-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  .toggle-content {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border: 2px solid #bbf7d0;
+    gap: 14px;
+  }
+
+  .toggle-icon.lab-icon {
+    font-size: 28px;
+    width: 52px;
+    height: 52px;
+    background: #0284c7;
     border-radius: 12px;
-    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
 
-    &:hover {
-      border-color: #86efac;
-      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
+  .toggle-text {
+    .toggle-label {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0c4a6e;
+      display: block;
+      margin-bottom: 3px;
     }
-
-    .toggle-content {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-
-      .toggle-icon {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-
-        svg {
-          width: 22px;
-          height: 22px;
-          color: white;
-          fill: white;
-        }
-      }
-
-      .toggle-text {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-
-        .toggle-label {
-          font-size: 15px;
-          font-weight: 700;
-          color: #065f46;
-        }
-
-        .toggle-description {
-          font-size: 13px;
-          color: #6b7280;
-          font-weight: 400;
-        }
-      }
-    }
-
-    // Custom styled checkbox
-    .custom-checkbox {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      cursor: pointer;
-      flex-shrink: 0;
-
-      input[type="checkbox"] {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-
-        &:checked + .checkmark {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          border-color: #059669;
-          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
-
-          svg {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-
-        &:focus + .checkmark {
-          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
-        }
-      }
-
-      .checkmark {
-        width: 28px;
-        height: 28px;
-        background: white;
-        border: 2px solid #d1d5db;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-
-        svg {
-          width: 18px;
-          height: 18px;
-          fill: white;
-          opacity: 0;
-          transform: scale(0.5);
-          transition: all 0.15s ease;
-        }
-      }
-
-      &:hover .checkmark {
-        border-color: #10b981;
-      }
+    .toggle-description {
+      font-size: 13px;
+      color: #0369a1;
     }
   }
-}//checkbox
 
-  .form-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid #e2e8f0;
-
-    h2 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1a202c;
-      margin: 0;
+  // Custom checkbox (reuse existing pattern)
+  .custom-checkbox {
+    position: relative;
+    cursor: pointer;
+    input[type='checkbox'] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      &:checked + .checkmark {
+        background: #0284c7;
+        border-color: #0284c7;
+        svg { opacity: 1; transform: scale(1); }
+      }
+      &:focus + .checkmark { box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25); }
     }
-
-    .close-btn {
-      width: 36px;
-      height: 36px;
-      border: none;
-      background: #fee2e2;
-      color: #dc2626;
+    .checkmark {
+      width: 28px;
+      height: 28px;
+      background: white;
+      border: 2px solid #bae6fd;
       border-radius: 8px;
-      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.2s;
-
-      svg {
-        width: 20px;
-        height: 20px;
-      }
-
-      &:hover {
-        background: #fecaca;
-        transform: scale(1.05);
-      }
+      svg { width: 18px; height: 18px; fill: white; opacity: 0; transform: scale(0.5); transition: all 0.15s; }
     }
+    &:hover .checkmark { border-color: #0284c7; }
   }
+}
 
-  .form-section {
-    margin-bottom: 32px;
+// ── Lab Order Body ──────────────────────────────────────────────────────────
+.lab-order-body {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 
-    h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #2d3748;
-      margin: 0 0 16px 0;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-
-      .add-prescription-btn {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-
-        svg {
-          width: 16px;
-          height: 16px;
-        }
-
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-        }
-      }
-    }
-  }
-
-  .form-grid {
+  .lab-meta-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: auto 1fr;
     gap: 16px;
+    align-items: start;
+
+    @media (max-width: 640px) { grid-template-columns: 1fr; }
   }
 
-  .form-group {
+  // ── Priority toggle ──────────────────────────────────────────────────────
+  .priority-toggle {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-
-    label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #4a5568;
-    }
-
-    input,
-    textarea {
-      padding: 10px 14px;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 14px;
-      color: #2d3748;
-      transition: all 0.2s;
-
-      &:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      }
-
-      &.error {
-        border-color: #ef4444;
-      }
-
-      &.disabled-input {
-        background: #f7fafc;
-        color: #718096;
-        cursor: not-allowed;
-      }
-    }
-
-    textarea {
-      resize: vertical;
-      font-family: inherit;
-    }
-
-    .error-message {
-      font-size: 12px;
-      color: #ef4444;
-      margin-top: 4px;
-    }
-  }
-
-  .prescriptions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-
-    .prescription-item {
-      background: #f7fafc;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 20px;
-
-      .prescription-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-
-        h4 {
-          font-size: 16px;
-          font-weight: 600;
-          color: #2d3748;
-          margin: 0;
-        }
-
-        .remove-btn {
-          width: 32px;
-          height: 32px;
-          border: none;
-          background: #fee2e2;
-          color: #dc2626;
-          border-radius: 6px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s;
-
-          svg {
-            width: 18px;
-            height: 18px;
-          }
-
-          &:hover {
-            background: #fecaca;
-            transform: scale(1.05);
-          }
-        }
-      }
-    }
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 32px;
-    padding-top: 20px;
-    border-top: 2px solid #e2e8f0;
+    gap: 8px;
+    margin-top: 4px;
 
     button {
-      padding: 12px 24px;
-      border: none;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border: 2px solid #e2e8f0;
       border-radius: 8px;
-      font-size: 15px;
+      background: white;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      color: #4a5568;
 
-      &.cancel-btn {
-        background: #e2e8f0;
-        color: #4a5568;
-
-        &:hover {
-          background: #cbd5e0;
-        }
+      &.active {
+        border-color: #0284c7;
+        background: #e0f2fe;
+        color: #0c4a6e;
       }
 
-      &.submit-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      .priority-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        &.normal { background: #48bb78; }
+        &.urgent { background: #ef4444; }
+      }
+    }
+  }
+
+  .lab-notes-group input {
+    padding: 10px 14px;
+    border: 2px solid #bae6fd;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #2d3748;
+    background: white;
+    width: 100%;
+    transition: all 0.2s;
+    &:focus { outline: none; border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12); }
+  }
+
+  // ── Test search ──────────────────────────────────────────────────────────
+  .lab-test-search {
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0c4a6e;
+      margin-bottom: 8px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 2px solid #bae6fd;
+      border-radius: 8px;
+      background: white;
+      transition: all 0.2s;
+      &:focus-within { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12); }
+
+      .search-icon { font-size: 16px; flex-shrink: 0; }
+
+      input {
+        border: none;
+        outline: none;
+        flex: 1;
+        font-size: 14px;
+        color: #2d3748;
+        background: transparent;
+        &::placeholder { color: #a0aec0; }
+      }
+    }
+  }
+
+  // ── Selected chips ───────────────────────────────────────────────────────
+  .selected-tests {
+    .selected-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0369a1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .test-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .test-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px 6px 12px;
+        background: #0284c7;
+        border-radius: 999px;
         color: white;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 
-        &:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        .chip-code {
+          font-size: 11px;
+          font-weight: 700;
+          background: rgba(255,255,255,0.25);
+          padding: 1px 6px;
+          border-radius: 99px;
+        }
+        .chip-name { font-size: 12px; font-weight: 500; }
+        .chip-remove {
+          background: rgba(255,255,255,0.2);
+          border: none;
+          color: white;
+          cursor: pointer;
+          border-radius: 50%;
+          width: 18px; height: 18px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 11px;
+          transition: background 0.15s;
+          &:hover { background: rgba(255,255,255,0.4); }
+        }
+      }
+    }
+  }
+
+  // ── Test catalogue grid ──────────────────────────────────────────────────
+  .test-catalogue {
+    .no-tests { text-align: center; color: #718096; font-size: 14px; padding: 16px; }
+
+    .test-catalogue-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 4px;
+
+      &::-webkit-scrollbar { width: 6px; }
+      &::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+      &::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 4px; }
+
+      .test-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 2px solid #e0f2fe;
+        border-radius: 10px;
+        cursor: pointer;
+        background: white;
+        transition: all 0.2s;
+        user-select: none;
+
+        &:hover { border-color: #0284c7; background: #f0f9ff; }
+        &.selected {
+          border-color: #0284c7;
+          background: #e0f2fe;
+          .test-item-check { background: #0284c7; border-color: #0284c7; }
         }
 
-        &:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
+        .test-item-check {
+          width: 20px; height: 20px;
+          border: 2px solid #bae6fd;
+          border-radius: 5px;
+          background: white;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          transition: all 0.15s;
+          svg { width: 14px; height: 14px; fill: white; }
+        }
+
+        .test-item-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          .test-name { font-size: 13px; font-weight: 600; color: #0c4a6e; line-height: 1.3; }
+          .test-code { font-size: 11px; color: #0369a1; font-weight: 500; }
         }
       }
     }
   }
 }
 
-@media (max-width: 768px) {
-  .consultation-form {
-    padding: 16px;
-
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .form-section .section-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-
-      .add-prescription-btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    .form-actions {
-      flex-direction: column;
-
-      button {
-        width: 100%;
-      }
-    }
-  }
+// ── Submit button spinner ────────────────────────────────────────────────────
+.spinner-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+.btn-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

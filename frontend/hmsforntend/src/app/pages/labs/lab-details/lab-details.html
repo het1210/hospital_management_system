@@ -1,0 +1,282 @@
+<div class="lab-details-page">
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading lab order...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && order">
+
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <div class="details-header">
+      <button class="back-btn" (click)="goBack()">← Back to Lab Orders</button>
+      <div class="header-main">
+        <div class="header-left">
+          <h1>Lab Order <span class="order-id">#{{ order.id }}</span></h1>
+          <div class="header-meta">
+            <span class="meta-pill">
+              <span>👤</span> {{ order.patientName || 'Patient #' + order.patientId }}
+            </span>
+            <span class="meta-pill">
+              <span>🩺</span> Dr. #{{ order.doctorId }}
+            </span>
+            <span class="meta-pill" *ngIf="order.episodeId">
+              <span>📁</span> Episode #{{ order.episodeId }}
+            </span>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="status-badge large"
+                [style.background]="getStatusColor(order.status) + '18'"
+                [style.color]="getStatusColor(order.status)"
+                [style.border-color]="getStatusColor(order.status) + '55'">
+            {{ getStatusLabel(order.status) }}
+          </span>
+          <span class="priority-badge" [class.urgent]="order.priority === 'URGENT'">
+            {{ order.priority === 'URGENT' ? '🔴 Urgent' : '🟢 Normal' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Status Progress Bar ─────────────────────────────────────────── -->
+    <div class="status-progress-card">
+      <div class="progress-steps">
+        <div *ngFor="let step of ['ORDERED','BOOKED','SAMPLE_COLLECTED','IN_PROGRESS','COMPLETED']"
+             class="progress-step"
+             [class.done]="isStepDone(step)"
+             [class.active]="order.status === step">
+          <div class="step-dot"></div>
+          <span class="step-label">{{ getStatusLabel(step) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Content grid ───────────────────────────────────────────────── -->
+    <div class="content-grid">
+
+      <!-- LEFT: Tests + Results ──────────────────────────────────────── -->
+      <div class="main-col">
+
+        <!-- Tests Table -->
+        <div class="section-card">
+          <div class="card-header">
+            <h2>🧪 Tests</h2>
+            <!-- FIX: order.tests is LabOrderTestDto[] (not optional here),
+                 use order.tests.length directly — no ?. needed -->
+            <div class="tests-progress" *ngIf="order.tests.length > 0">
+              <span>{{ order.tests | labTestsCompleted }} / {{ order.tests.length }} completed</span>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width]="progressPercent + '%'"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <table class="tests-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Test</th>
+                  <th>Code</th>
+                  <th>Result</th>
+                  <th>Unit</th>
+                  <th>Ref. Range</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let test of order.tests; let i = index"
+                    [class.completed-row]="test.status === 'COMPLETED'">
+                  <td>{{ i + 1 }}</td>
+                  <td class="test-name-cell">{{ test.testName }}</td>
+                  <td><span class="code-chip">{{ test.testCode || '—' }}</span></td>
+                  <td>{{ test.resultValue || '—' }}</td>
+                  <td>{{ test.unit || '—' }}</td>
+                  <td>{{ test.referenceRange || '—' }}</td>
+                  <td>
+                    <span class="test-status-dot" [class]="test.status.toLowerCase()">
+                      {{ test.status === 'COMPLETED' ? '✅'
+                       : test.status === 'IN_PROGRESS' ? '⏳' : '⬜' }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Result Entry Form (Lab Tech, IN_PROGRESS) -->
+        <div class="section-card result-entry-card" *ngIf="canSubmitResults()">
+          <div class="card-header">
+            <h2>📝 Enter Test Results</h2>
+            <p class="card-subtitle">Fill all tests then save or generate the final report.</p>
+          </div>
+          <div class="card-body">
+
+            <div *ngFor="let form of resultForms; let i = index" class="result-form-item">
+              <div class="result-form-header">
+                <span class="result-test-num">{{ i + 1 }}</span>
+                <h4>{{ form.testName }}</h4>
+              </div>
+              <div class="result-grid">
+                <div class="result-form-group">
+                  <label>Result Value *</label>
+                  <input type="text" [(ngModel)]="form.resultValue"
+                         name="resultValue_{{ i }}"
+                         placeholder="e.g., 12.5"
+                         [class.filled]="form.resultValue">
+                </div>
+                <div class="result-form-group">
+                  <label>Unit</label>
+                  <input type="text" [(ngModel)]="form.unit"
+                         name="unit_{{ i }}"
+                         placeholder="e.g., g/dL">
+                </div>
+                <div class="result-form-group">
+                  <label>Reference Range</label>
+                  <input type="text" [(ngModel)]="form.referenceRange"
+                         name="refRange_{{ i }}"
+                         placeholder="e.g., 11.5–16.5">
+                </div>
+                <div class="result-form-group wide">
+                  <label>Remarks</label>
+                  <input type="text" [(ngModel)]="form.remarks"
+                         name="remarks_{{ i }}"
+                         placeholder="Any notes...">
+                </div>
+              </div>
+            </div>
+
+            <div class="result-actions">
+              <button class="btn-primary" (click)="submitResults()"
+                      [disabled]="isSubmitting">
+                <span *ngIf="!isSubmitting">💾 Save Results</span>
+                <span *ngIf="isSubmitting">Saving...</span>
+              </button>
+              <button class="btn-success" (click)="openReportForm()"
+                      *ngIf="canGenerateReport()" [disabled]="isSubmitting">
+                📄 Generate Final Report
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Report Generation Form -->
+        <div class="section-card report-gen-card" *ngIf="showReportForm">
+          <div class="card-header">
+            <h2>📄 Generate Final Report</h2>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Technician Summary / Interpretation</label>
+              <textarea [(ngModel)]="reportSummary" name="reportSummary" rows="4"
+                        placeholder="Optional: Add overall interpretation or additional notes..."></textarea>
+            </div>
+            <div class="result-actions">
+              <button class="btn-outline" (click)="showReportForm = false">Cancel</button>
+              <button class="btn-success" (click)="generateReport()" [disabled]="isSubmitting">
+                <span *ngIf="!isSubmitting">✅ Finalize &amp; Complete Order</span>
+                <span *ngIf="isSubmitting">Generating...</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Viewer -->
+        <div class="section-card report-view-card" *ngIf="order.report">
+          <div class="card-header">
+            <h2>📋 Final Report</h2>
+            <span class="report-status-badge">{{ order.report.status }}</span>
+          </div>
+          <div class="card-body">
+            <div class="report-meta">
+              <span>Generated: {{ order.report.generatedAt | date:'dd MMM yyyy, h:mm a' }}</span>
+            </div>
+            <div class="report-summary" *ngIf="order.report.summary">
+              <h4>Technician Summary</h4>
+              <p>{{ order.report.summary }}</p>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /main-col -->
+
+      <!-- RIGHT: Info sidebar ─────────────────────────────────────────── -->
+      <div class="side-col">
+
+        <!-- Order Info -->
+        <div class="section-card info-card">
+          <div class="card-header"><h2>ℹ️ Order Info</h2></div>
+          <div class="card-body info-list">
+            <div class="info-item">
+              <span class="info-label">Order ID</span>
+              <span class="info-val">#{{ order.id }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Patient</span>
+              <span class="info-val">{{ order.patientName || '#' + order.patientId }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Doctor ID</span>
+              <span class="info-val">#{{ order.doctorId }}</span>
+            </div>
+            <div class="info-item" *ngIf="order.episodeId">
+              <span class="info-label">Episode</span>
+              <span class="info-val">#{{ order.episodeId }}</span>
+            </div>
+            <div class="info-item" *ngIf="order.encounterId">
+              <span class="info-label">Encounter</span>
+              <span class="info-val">#{{ order.encounterId }}</span>
+            </div>
+            <div class="info-item" *ngIf="order.labAppointmentId">
+              <span class="info-label">Lab Appt</span>
+              <span class="info-val">#{{ order.labAppointmentId }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Priority</span>
+              <span class="info-val priority" [class.urgent]="order.priority === 'URGENT'">
+                {{ order.priority }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Created</span>
+              <span class="info-val">{{ order.createdAt | date:'dd MMM yyyy' }}</span>
+            </div>
+            <div class="info-item" *ngIf="order.notes">
+              <span class="info-label">Notes</span>
+              <span class="info-val">{{ order.notes }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sample Info -->
+        <div class="section-card info-card" *ngIf="order.sample">
+          <div class="card-header"><h2>🧫 Sample</h2></div>
+          <div class="card-body info-list">
+            <div class="info-item">
+              <span class="info-label">Type</span>
+              <span class="info-val">{{ order.sample.sampleType }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Barcode</span>
+              <span class="info-val mono">{{ order.sample.barcode }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Collected</span>
+              <span class="info-val">{{ order.sample.collectedAt | date:'dd MMM, h:mm a' }}</span>
+            </div>
+            <div class="info-item" *ngIf="order.sample.sampleNotes">
+              <span class="info-label">Notes</span>
+              <span class="info-val">{{ order.sample.sampleNotes }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /side-col -->
+    </div><!-- /content-grid -->
+
+  </ng-container>
+
+</div>

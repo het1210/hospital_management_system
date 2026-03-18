@@ -1,0 +1,189 @@
+<div class="lab-list-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>🔬 Lab Orders</h1>
+      <p class="subtitle">{{ totalElements }} order{{ totalElements !== 1 ? 's' : '' }} total</p>
+    </div>
+  </div>
+
+  <!-- ── Filters ────────────────────────────────────────────────────────── -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>Filter by Status</label>
+      <div class="status-filters">
+        <button class="status-filter-btn"
+                [class.active]="selectedStatus === ''"
+                (click)="selectedStatus = ''; onStatusFilter()">
+          All
+        </button>
+        <button *ngFor="let s of allStatuses"
+                class="status-filter-btn"
+                [class.active]="selectedStatus === s"
+                [style.--btn-color]="getStatusColor(s)"
+                (click)="selectedStatus = s; onStatusFilter()">
+          {{ getStatusLabel(s) }}
+        </button>
+      </div>
+    </div>
+    <button class="refresh-btn" (click)="loadOrders()">↻ Refresh</button>
+  </div>
+
+  <!-- ── Loading skeleton ───────────────────────────────────────────────── -->
+  <div class="skeleton-rows" *ngIf="isLoading">
+    <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
+  </div>
+
+  <!-- ── Table ──────────────────────────────────────────────────────────── -->
+  <div class="table-card" *ngIf="!isLoading">
+    <div class="table-wrap">
+      <table class="lab-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Order ID</th>
+            <th>Patient</th>
+            <th>Tests</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- Empty state -->
+          <tr *ngIf="orders.length === 0">
+            <td colspan="8" class="empty-state">
+              <div class="empty-content">
+                <span class="empty-icon">🔬</span>
+                <p>No lab orders found</p>
+                <small *ngIf="selectedStatus">Try clearing the filter</small>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Data rows -->
+          <tr *ngFor="let order of orders; let i = index" class="data-row">
+
+            <td class="row-num">{{ currentPage * pageSize + i + 1 }}</td>
+
+            <td class="order-id">
+              <span class="id-badge">#{{ order.id }}</span>
+            </td>
+
+            <td class="patient-cell">
+              <span class="patient-name">{{ order.patientName || 'Patient #' + order.patientId }}</span>
+            </td>
+
+            <td class="tests-cell">
+              <div class="test-tags">
+                <!-- FIX: use (order.tests || []) so .slice() is always safe -->
+                <span *ngFor="let t of (order.tests || []).slice(0, 2)" class="test-tag">
+                  {{ t.testCode || t.testName }}
+                </span>
+                <!-- FIX: replace order.tests?.length with (order.tests || []).length -->
+                <span *ngIf="(order.tests || []).length > 2" class="test-tag more">
+                  +{{ (order.tests || []).length - 2 }} more
+                </span>
+              </div>
+            </td>
+
+            <td>
+              <span class="priority-badge" [class.urgent]="order.priority === 'URGENT'">
+                {{ order.priority === 'URGENT' ? '🔴 Urgent' : '🟢 Normal' }}
+              </span>
+            </td>
+
+            <td>
+              <span class="status-badge"
+                    [style.background]="getStatusColor(order.status) + '18'"
+                    [style.color]="getStatusColor(order.status)"
+                    [style.border-color]="getStatusColor(order.status) + '44'">
+                {{ getStatusLabel(order.status) }}
+              </span>
+            </td>
+
+            <td class="date-cell">{{ order.createdAt | date:'dd MMM yyyy' }}</td>
+
+            <td class="actions-cell">
+              <div class="action-buttons">
+
+                <!-- Always: view details -->
+                <button class="action-btn view-btn"
+                        (click)="viewDetails(order.id)"
+                        title="View Details">
+                  👁 View
+                </button>
+
+                <!-- Frontdesk: Book if ORDERED -->
+                <button *ngIf="canBook(order)"
+                        class="action-btn book-btn"
+                        (click)="bookAppointment(order)"
+                        title="Book Lab Appointment">
+                  📅 Book
+                </button>
+
+                <!-- Lab Tech: Collect sample if BOOKED -->
+                <button *ngIf="canCollectSample(order)"
+                        class="action-btn collect-btn"
+                        (click)="collectSample(order)"
+                        title="Collect Sample">
+                  🧪 Collect
+                </button>
+
+                <!-- Lab Tech: Start processing if SAMPLE_COLLECTED -->
+                <button *ngIf="canStartProcessing(order)"
+                        class="action-btn process-btn"
+                        (click)="startProcessing(order)"
+                        title="Start Processing">
+                  ⚙️ Process
+                </button>
+
+                <!-- Lab Tech: Enter results if IN_PROGRESS -->
+                <button *ngIf="canEnterResults(order)"
+                        class="action-btn results-btn"
+                        (click)="viewDetails(order.id)"
+                        title="Enter Results">
+                  📝 Results
+                </button>
+
+                <!-- View report if COMPLETED -->
+                <button *ngIf="canViewReport(order)"
+                        class="action-btn report-btn"
+                        (click)="viewReport(order)"
+                        title="View Report">
+                  📄 Report
+                </button>
+
+                <!-- Cancel -->
+                <button *ngIf="canCancel(order)"
+                        class="action-btn cancel-btn"
+                        (click)="cancelOrder(order)"
+                        title="Cancel Order">
+                  ✕
+                </button>
+
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Pagination ────────────────────────────────────────────────────── -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" (click)="prevPage()"
+              [disabled]="currentPage === 0">‹ Prev</button>
+      <button *ngFor="let p of pages"
+              class="page-btn"
+              [class.active]="p === currentPage"
+              (click)="goToPage(p)">{{ p + 1 }}</button>
+      <button class="page-btn" (click)="nextPage()"
+              [disabled]="currentPage === totalPages - 1">Next ›</button>
+    </div>
+  </div>
+
+</div>
