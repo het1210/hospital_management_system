@@ -1,0 +1,77 @@
+<!-- ══════════════════════════════════════════
+     FILE: sample-collection.html
+══════════════════════════════════════════ -->
+<div class="sample-collection-page">
+  <div class="collection-card">
+
+    <div class="card-header">
+      <button class="back-btn" (click)="goBack()">← Back to Order</button>
+      <h1>🧪 Sample Collection</h1>
+      <p class="subtitle">Lab Order <strong>#{{ orderId }}</strong></p>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div><p>Loading...</p>
+    </div>
+
+    <ng-container *ngIf="!isLoading && order">
+
+      <!-- Validation banner: only BOOKED orders can be collected -->
+      <div class="status-warning" *ngIf="order.status !== 'BOOKED'">
+        ⚠️ Sample can only be collected for orders with status <strong>BOOKED</strong>.
+        Current status: <strong>{{ order.status }}</strong>
+      </div>
+
+      <ng-container *ngIf="order.status === 'BOOKED'">
+
+        <!-- Patient + tests summary -->
+        <div class="patient-summary">
+          <div class="patient-row">
+            <div class="patient-icon">👤</div>
+            <div>
+              <div class="patient-name">{{ order.patientName || 'Patient #' + order.patientId }}</div>
+              <div class="patient-meta">Order #{{ orderId }} · {{ order.priority }}</div>
+            </div>
+          </div>
+          <div class="tests-list">
+            <span *ngFor="let t of order.tests" class="test-chip">
+              {{ t.testName }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Collection form -->
+        <div class="collection-form">
+          <div class="form-group">
+            <label>Sample Type *</label>
+            <div class="sample-type-grid">
+              <button *ngFor="let t of sampleTypes"
+                      type="button"
+                      class="sample-type-btn"
+                      [class.selected]="sampleType === t"
+                      (click)="sampleType = t">
+                {{ t }}
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Collection Notes</label>
+            <textarea [(ngModel)]="sampleNotes" rows="3"
+                      placeholder="E.g. Fasting sample, special instructions..."></textarea>
+          </div>
+
+          <div class="collection-actions">
+            <button class="btn-cancel" (click)="goBack()">Cancel</button>
+            <button class="btn-collect" (click)="onSubmit()" [disabled]="isSubmitting || !sampleType">
+              <span *ngIf="!isSubmitting">🧪 Confirm Sample Collection</span>
+              <span *ngIf="isSubmitting">Collecting...</span>
+            </button>
+          </div>
+        </div>
+
+      </ng-container>
+    </ng-container>
+
+  </div>
+</div>

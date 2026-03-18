@@ -1,4 +1,4 @@
-<div class="dashboard">
+<!-- <div class="dashboard">
   <div class="dashboard-header">
     <h1>{{ welcomeMessage }}</h1>
     <p class="subtitle">Overview of your key metrics</p>
@@ -17,13 +17,196 @@
 
   <app-charts (appointmentStateEmit)="handleAppointmentValues($event)"
     (appointmentStateForTodayEmit)="handleAppointmentForToday($event)"
-    (userCountEmit)="handleUserCount($event)"></app-charts>
+    (userCountEmit)="handleUserCount($event)"></app-charts> -->
 
   <!-- Calendar View for Doctors -->
-  <div class="calendar-section" *ngIf="userRole === 'doctor' && isShowCalendar">
+  <!-- <div class="calendar-section" *ngIf="userRole === 'doctor' && isShowCalendar">
     <h2>My Appointments Calendar</h2>
     <div class="calendar-wrapper">
       <full-calendar [options]="calendarOptions"></full-calendar>
     </div>
   </div>
+</div> -->
+
+<div class="dashboard">
+
+  <!-- ══════════════ HEADER ══════════════ -->
+  <div class="dashboard-header">
+    <div class="header-left">
+      <p class="greeting">{{ greeting }}, <span class="username">{{ userRole | titlecase }}</span> 👋</p>
+      <h1>{{ welcomeMessage }}</h1>
+      <p class="subtitle">{{ currentDate | date:'EEEE, MMMM d, y' }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-refresh" (click)="ngOnInit()"><span>↻</span> Refresh</button>
+    </div>
+  </div>
+
+  <!-- ══════════════ SKELETON ══════════════ -->
+  <div class="skeleton-grid" *ngIf="isLoadingAnalytics && stats.length === 0">
+    <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+  </div>
+
+  <!-- ══════════════ STAT CARDS ══════════════ -->
+  <div class="stats-grid" *ngIf="stats.length > 0" [class.grid-large]="stats.length > 4">
+    <div *ngFor="let stat of stats" class="stat-card"
+      (click)="onStatClick(stat)"
+      [class.clickable]="stat.route || stat.title === 'Appointments Today'"
+      [style.--card-color]="stat.color">
+      <div class="stat-icon">{{ stat.icon }}</div>
+      <div class="stat-info">
+        <h3>{{ stat.title }}</h3>
+        <p class="stat-value">{{ stat.value }}</p>
+        <div class="stat-trend" *ngIf="stat.trend !== undefined && stat.trend !== null">
+          <span class="trend-badge" [class.up]="stat.trend! > 0" [class.down]="stat.trend! < 0">
+            {{ stat.trend! > 0 ? '↑' : stat.trend! < 0 ? '↓' : '→' }} {{ stat.trend! | number:'1.0-1' }}%
+          </span>
+          <span class="trend-label">{{ stat.trendLabel }}</span>
+        </div>
+      </div>
+      <div class="stat-arrow" *ngIf="stat.route">›</div>
+    </div>
+  </div>
+
+      <!-- ══════════════ DOCTOR CALENDAR ══════════════ -->
+  <div class="calendar-section" *ngIf="userRole === 'doctor' && isShowCalendar">
+    <div class="cal-header">
+      <h2>📅 My Appointments Calendar</h2>
+      <button class="btn-close-cal" (click)="isShowCalendar = false">✕ Close</button>
+    </div>
+    <div class="calendar-wrapper">
+      <full-calendar [options]="calendarOptions"></full-calendar>
+    </div>
+  </div>
+
+  <!-- ══════════════ CHARTS COMPONENT ══════════════ -->
+  <app-charts
+    [analyticsData]="analytics"
+    (appointmentStateEmit)="onAppointmentState($event)"
+    (appointmentStateForTodayEmit)="onAppointmentStateToday($event)"
+    (userCountEmit)="onUserCount($event)"
+  ></app-charts>
+
+  <!-- ══════════════ LIVE ANALYTICS PANELS ══════════════ -->
+  <ng-container *ngIf="analytics && !isLoadingAnalytics">
+
+    <!-- Weekly + Monthly trend -->
+    <div class="analytics-row" *ngIf="analytics.weeklyAppointmentTrend || analytics.monthlyAppointmentTrend">
+      <div class="analytics-card wide" *ngIf="analytics.weeklyAppointmentTrend">
+        <div class="ac-header">
+          <div><h3>Weekly Appointment Trend</h3><p>Appointments per day — last 7 days</p></div>
+          <div class="ac-badge">Live</div>
+        </div>
+        <div class="ac-body"><canvas id="weeklyTrendLine"></canvas></div>
+      </div>
+      <div class="analytics-card" *ngIf="analytics.monthlyAppointmentTrend">
+        <div class="ac-header"><div><h3>Monthly Overview</h3><p>Last 6 months</p></div></div>
+        <div class="ac-body"><canvas id="monthlyTrendBar"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Hourly distribution -->
+    <!-- <div class="analytics-row single" *ngIf="analytics.hourlyDistribution">
+      <div class="analytics-card full">
+        <div class="ac-header">
+          <div><h3>Hourly Appointment Distribution — Today</h3><p>Identify peak and quiet periods</p></div>
+          <div class="ac-badge">Today</div>
+        </div>
+        <div class="ac-body tall"><canvas id="hourlyDistBar"></canvas></div>
+      </div>
+    </div> -->
+
+
+
+
+    <!-- Top Diagnoses + Episode Status -->
+    <div class="analytics-row two-col" *ngIf="analytics.topDiagnoses || analytics.totalEpisodes !== undefined">
+      <div class="analytics-card" *ngIf="analytics.topDiagnoses">
+        <div class="ac-header"><div><h3>Top Diagnoses</h3><p>Most recorded diagnoses</p></div></div>
+        <div class="ac-body"><canvas id="topDiagnosesBar"></canvas></div>
+      </div>
+
+      <div class="analytics-card" *ngIf="analytics.totalEpisodes !== null">
+        <div class="ac-header">
+          <div><h3>Episode Status</h3><p>Open vs closed patient episodes</p></div>
+          <div class="ac-stats-row">
+            <div class="ac-mini-stat">
+              <span class="ac-mini-val" style="color:#f59e0b">{{ analytics.openEpisodes }}</span>
+              <span class="ac-mini-label">Open</span>
+            </div>
+            <div class="ac-mini-stat">
+              <span class="ac-mini-val" style="color:#48bb78">{{ analytics.closedEpisodes }}</span>
+              <span class="ac-mini-label">Closed</span>
+            </div>
+          </div>
+        </div>
+        <div class="ac-body"><canvas id="episodeStatusDoughnut"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Doctor Performance Strip -->
+    <div class="analytics-row single" *ngIf="userRole === 'doctor' && analytics.myPatientsCount !== undefined">
+      <div class="analytics-card full">
+        <div class="ac-header"><div><h3>My Performance Overview</h3><p>Key metrics for today's practice</p></div></div>
+        <div class="doctor-summary-strip">
+          <div class="summary-item">
+            <span class="si-value">{{ analytics.myPatientsCount }}</span>
+            <span class="si-label">Total Patients Seen</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-item">
+            <span class="si-value">{{ analytics.myConsultationsToday }}</span>
+            <span class="si-label">Consultations Today</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-item">
+            <span class="si-value">{{ analytics.myUpcomingAppointments }}</span>
+            <span class="si-label">Upcoming Appointments</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-item">
+            <span class="si-value">{{ analytics.completedAppointments }}</span>
+            <span class="si-label">Completed Today</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Feed -->
+    <div class="analytics-row single" *ngIf="analytics.recentActivities && analytics.recentActivities.length > 0">
+      <div class="analytics-card full activity-card">
+        <div class="ac-header">
+          <div><h3>Recent Activity</h3><p>Latest appointments and system events</p></div>
+          <div class="ac-badge">Live Feed</div>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item" *ngFor="let act of analytics.recentActivities">
+            <div class="act-dot" [style.background]="act.color"></div>
+            <div class="act-body">
+              <div class="act-title">{{ act.title }}</div>
+              <div class="act-sub">{{ act.subtitle }}</div>
+            </div>
+            <div class="act-right">
+              <span class="act-status" [style.background]="act.color + '22'" [style.color]="act.color">
+                {{ act.status | titlecase }}
+              </span>
+              <span class="act-time">{{ formatTime(act.time) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- Error state -->
+  <div class="analytics-error" *ngIf="analyticsError">
+    <div class="error-icon">⚠️</div>
+    <div>
+      <h4>Could not load analytics</h4>
+      <p>Stat cards still show live counts. Chart data is unavailable.</p>
+    </div>
+    <button class="btn-refresh" (click)="ngOnInit()">Retry</button>
+  </div>
+
 </div>

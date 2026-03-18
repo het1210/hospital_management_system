@@ -1,0 +1,277 @@
+$surface: #ffffff;
+$bg:      #f4f6fb;
+$border:  #e2e8f0;
+$text:    #1a202c;
+$muted:   #718096;
+$radius:  12px;
+$shadow:  0 2px 8px rgba(0,0,0,0.06);
+
+.lab-details-page {
+  padding: 28px;
+  background: $bg;
+  min-height: 100vh;
+  @media (max-width: 768px) { padding: 16px; }
+}
+
+// ── Loading ───────────────────────────────────────────────────────────────────
+.loading-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 300px; gap: 16px;
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  p { color: $muted; font-size: 14px; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.back-btn {
+  background: none; border: none; cursor: pointer;
+  color: #667eea; font-size: 14px; font-weight: 600;
+  padding: 0; margin-bottom: 16px; display: block;
+  &:hover { text-decoration: underline; }
+}
+
+.details-header {
+  margin-bottom: 20px;
+
+  .header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  h1 {
+    font-size: 24px; font-weight: 800; color: $text; margin: 0 0 10px;
+    .order-id { color: #667eea; }
+  }
+
+  .header-meta {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    .meta-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      background: $surface; border: 1.5px solid $border;
+      border-radius: 99px; font-size: 13px; font-weight: 500; color: $text;
+    }
+  }
+
+  .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+  .status-badge.large {
+    padding: 6px 16px; border-radius: 99px;
+    font-size: 13px; font-weight: 700; border: 2px solid; white-space: nowrap;
+  }
+
+  .priority-badge {
+    font-size: 13px; font-weight: 600; color: #4a5568;
+    &.urgent { color: #ef4444; font-weight: 700; }
+  }
+}
+
+// ── Status progress ───────────────────────────────────────────────────────────
+.status-progress-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: $shadow;
+
+  .progress-steps {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 9px; left: 10px; right: 10px;
+      height: 2px;
+      background: $border;
+      z-index: 0;
+    }
+
+    .progress-step {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      position: relative; z-index: 1; flex: 1;
+
+      .step-dot {
+        width: 20px; height: 20px;
+        border-radius: 50%;
+        background: $border;
+        border: 3px solid $surface;
+        box-shadow: 0 0 0 2px $border;
+        transition: all 0.3s;
+      }
+
+      .step-label {
+        font-size: 10px; font-weight: 600; color: $muted;
+        text-align: center; white-space: nowrap;
+        @media (max-width: 640px) { font-size: 9px; }
+      }
+
+      &.done .step-dot  { background: #48bb78; box-shadow: 0 0 0 2px #48bb78; }
+      &.active .step-dot { background: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.3); }
+      &.done .step-label, &.active .step-label { color: $text; font-weight: 700; }
+    }
+  }
+}
+
+// ── Content grid ──────────────────────────────────────────────────────────────
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+  align-items: start;
+  @media (max-width: 1024px) { grid-template-columns: 1fr; }
+}
+
+// ── Section cards ─────────────────────────────────────────────────────────────
+.section-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  margin-bottom: 20px;
+  overflow: hidden;
+
+  .card-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid $border;
+    background: #fafbfc;
+
+    h2 { font-size: 15px; font-weight: 700; color: $text; margin: 0; }
+    .card-subtitle { font-size: 13px; color: $muted; margin: 4px 0 0; }
+  }
+
+  .card-body { padding: 20px; }
+}
+
+// ── Tests table ───────────────────────────────────────────────────────────────
+.tests-progress {
+  display: flex; align-items: center; gap: 10px; font-size: 12px; color: $muted;
+  .progress-bar { width: 80px; height: 6px; background: $border; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #48bb78; border-radius: 99px; transition: width 0.4s; }
+}
+
+.tests-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+  th {
+    padding: 10px 12px; text-align: left;
+    font-size: 11px; font-weight: 700; color: $muted; text-transform: uppercase;
+    background: #f7fafc; border-bottom: 2px solid $border;
+  }
+  td { padding: 12px 12px; border-bottom: 1px solid #f1f5f9; }
+  .completed-row td { background: #f0fdf4; }
+  .test-name-cell { font-weight: 600; }
+  .code-chip {
+    background: #eef2ff; color: #667eea;
+    padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 700;
+  }
+}
+
+// ── Result entry ──────────────────────────────────────────────────────────────
+.result-entry-card { border: 2px solid #667eea33; }
+
+.result-form-item {
+  background: #f8faff;
+  border: 1.5px solid #e0e7ff;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+
+  .result-form-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    .result-test-num {
+      width: 26px; height: 26px;
+      background: #667eea; color: white;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    h4 { margin: 0; font-size: 14px; font-weight: 700; color: $text; }
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    @media (max-width: 640px) { grid-template-columns: 1fr; }
+
+    .result-form-group {
+      display: flex; flex-direction: column; gap: 5px;
+      &.wide { grid-column: 1 / -1; }
+
+      label { font-size: 11px; font-weight: 700; color: $muted; text-transform: uppercase; letter-spacing: 0.4px; }
+      input {
+        padding: 8px 12px;
+        border: 2px solid $border;
+        border-radius: 7px;
+        font-size: 13px; color: $text;
+        background: white;
+        transition: all 0.2s;
+        &:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        &.filled { border-color: #48bb78; }
+      }
+    }
+  }
+}
+
+// ── Report gen card ───────────────────────────────────────────────────────────
+.report-gen-card {
+  border: 2px solid #10b98133;
+  .form-group {
+    display: flex; flex-direction: column; gap: 6px;
+    label { font-size: 13px; font-weight: 600; color: $muted; }
+    textarea {
+      padding: 10px 14px; border: 2px solid $border;
+      border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;
+      &:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+    }
+  }
+}
+
+// ── Report view card ──────────────────────────────────────────────────────────
+.report-view-card {
+  border: 2px solid #48bb7833;
+  .report-status-badge {
+    background: #dcfce7; color: #15803d;
+    padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 700;
+  }
+  .report-meta { font-size: 12px; color: $muted; margin-bottom: 12px; }
+  .report-summary h4 { font-size: 13px; font-weight: 700; color: $text; margin: 0 0 6px; }
+  .report-summary p  { font-size: 14px; color: #2d3748; line-height: 1.6; }
+}
+
+// ── Info card ─────────────────────────────────────────────────────────────────
+.info-list { display: flex; flex-direction: column; gap: 10px; }
+.info-item {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+  .info-label { font-size: 12px; font-weight: 600; color: $muted; text-transform: uppercase; letter-spacing: 0.4px; flex-shrink: 0; }
+  .info-val { font-size: 13px; font-weight: 600; color: $text; text-align: right;
+    &.mono { font-family: monospace; font-size: 12px; }
+    &.priority { &.urgent { color: #ef4444; } }
+  }
+}
+
+// ── Action buttons ────────────────────────────────────────────────────────────
+.result-actions {
+  display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;
+  .btn-primary, .btn-success, .btn-outline {
+    padding: 11px 22px; border-radius: 9px; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; border: none;
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+  .btn-primary { background: #667eea; color: white; &:hover:not(:disabled) { background: #5563d8; } }
+  .btn-success { background: #10b981; color: white; &:hover:not(:disabled) { background: #059669; } }
+  .btn-outline { background: white; border: 2px solid $border; color: $muted;
+    &:hover:not(:disabled) { border-color: #667eea; color: #667eea; } }
+}
