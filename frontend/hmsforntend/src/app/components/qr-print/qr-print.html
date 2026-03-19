@@ -11,7 +11,7 @@
   <div class="card">
 
     <h2>Patient QR Code</h2>
-
+    <div id="printview">
     <div class="qr-section">
       <qrcode
         [qrdata]="qrValue"
@@ -36,6 +36,7 @@
         {{patient?.state}} - {{patient?.pincode}}
       </p>
 
+    </div>
     </div>
 
     <div class="actions no-print">
