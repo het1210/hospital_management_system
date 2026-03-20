@@ -41,7 +41,8 @@ export class LabBooking implements OnInit {
   ngOnInit() {
     this.orderId = Number(this.route.snapshot.paramMap.get('id'));
     this.labService.getLabOrderById(this.orderId).subscribe({
-      next: (r: any) => { this.order = r.data; this.isLoading = false; this.cdRef.detectChanges(); },
+      next: (r: any) => { this.order = r.data; this.isLoading = false; this.cdRef.detectChanges(); console.log(this.order);
+      },
       error: () => { this.toastService.error('Could not load order'); this.isLoading = false; },
     });
   }
