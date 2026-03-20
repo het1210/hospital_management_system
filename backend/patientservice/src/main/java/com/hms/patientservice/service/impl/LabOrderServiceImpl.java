@@ -37,8 +37,6 @@ public class LabOrderServiceImpl {
     @Autowired private LabReportRepository    labReportRepository;
     @Autowired private PatientRepository      patientRepository;
     @Autowired private AppointmentRepository  appointmentRepository;
-    @Autowired private EpisodeRepository      episodeRepository;
-    @Autowired private EncounterRepository    encounterRepository;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
@@ -143,24 +141,8 @@ public class LabOrderServiceImpl {
 
         Appointment savedAppt = appointmentRepository.save(labAppt);
 
-
-        //Create Encounter for lab
-        Episode episode = episodeRepository.findById(order.getEpisodeId()).orElseThrow(()-> new RuntimeException("Episode Not Found"));
-
-        Encounter encounter = Encounter.builder()
-                .episode(episode)
-                .appointmentId(savedAppt.getId())
-                .patientId(savedAppt.getPatientId())
-                .doctorId(savedAppt.getDoctorId())
-                .type(Encounter.EncounterType.LAB)
-                .startTime(LocalDateTime.now())
-                .build();
-
-        Encounter savedEncounter = encounterRepository.save(encounter);
-
         // Update lab order
         order.setLabAppointmentId(savedAppt.getId());
-        order.setEncounterId(savedEncounter.getId());
         order.setStatus(LabOrder.LabOrderStatus.BOOKED);
         order.setUpdatedAt(LocalDateTime.now());
         order.setUpdatedBy(Integer.parseInt(request.getHeader("X-User-Id")));
@@ -339,12 +321,6 @@ public class LabOrderServiceImpl {
                 appt.setStatus(Appointment.AppointmentStatus.COMPLETED);
                 appointmentRepository.save(appt);
             });
-        }
-        //Mark Encounter as Closed
-        if(order.getEncounterId() != null){
-            Encounter encounter = encounterRepository.findById(order.getEncounterId()).orElseThrow(()-> new RuntimeException("Encounter not found for given Lab"));
-            encounter.setEndTime(LocalDateTime.now());
-            encounterRepository.save(encounter);
         }
 
         log.info("Report generated and lab order {} COMPLETED", labOrderId);
